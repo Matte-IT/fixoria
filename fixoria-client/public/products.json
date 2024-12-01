@@ -1,0 +1,272 @@
+[
+  {
+    "id": 1,
+    "product_name": "Wireless Keyboard",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 35,
+    "price": 29.99,
+    "status": "inactive"
+  },
+  {
+    "id": 2,
+    "product_name": "Gaming Mouse",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 50,
+    "price": 19.99,
+    "status": "published"
+  },
+  {
+    "id": 3,
+    "product_name": "Laptop Stand",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Accessories",
+    "stock": 20,
+    "price": 49.99,
+    "status": "inactive"
+  },
+  {
+    "id": 4,
+    "product_name": "Bluetooth Speaker",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 15,
+    "price": 39.99,
+    "status": "inactive"
+  },
+  {
+    "id": 5,
+    "product_name": "Smartphone Case",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Accessories",
+    "stock": 0,
+    "price": 9.99,
+    "status": "stock out"
+  },
+  {
+    "id": 6,
+    "product_name": "USB-C Hub",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 40,
+    "price": 24.99,
+    "status": "published"
+  },
+  {
+    "id": 7,
+    "product_name": "LED Desk Lamp",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Home",
+    "stock": 25,
+    "price": 34.99,
+    "status": "draft list"
+  },
+  {
+    "id": 8,
+    "product_name": "Noise Cancelling Headphones",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 10,
+    "price": 89.99,
+    "status": "inactive"
+  },
+  {
+    "id": 9,
+    "product_name": "Yoga Mat",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Fitness",
+    "stock": 30,
+    "price": 19.99,
+    "status": "published"
+  },
+  {
+    "id": 10,
+    "product_name": "Fitness Tracker",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Fitness",
+    "stock": 8,
+    "price": 59.99,
+    "status": "inactive"
+  },
+  {
+    "id": 11,
+    "product_name": "Ceramic Mug",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Kitchen",
+    "stock": 60,
+    "price": 12.99,
+    "status": "published"
+  },
+  {
+    "id": 12,
+    "product_name": "Electric Kettle",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Kitchen",
+    "stock": 12,
+    "price": 49.99,
+    "status": "inactive"
+  },
+  {
+    "id": 13,
+    "product_name": "Mechanical Keyboard",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 18,
+    "price": 79.99,
+    "status": "draft list"
+  },
+  {
+    "id": 14,
+    "product_name": "Desk Organizer",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Home",
+    "stock": 22,
+    "price": 15.99,
+    "status": "inactive"
+  },
+  {
+    "id": 15,
+    "product_name": "Wireless Charger",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 5,
+    "price": 27.99,
+    "status": "published"
+  },
+  {
+    "id": 16,
+    "product_name": "Vacuum Cleaner",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Home",
+    "stock": 0,
+    "price": 129.99,
+    "status": "stock out"
+  },
+  {
+    "id": 17,
+    "product_name": "E-Reader",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 14,
+    "price": 99.99,
+    "status": "inactive"
+  },
+  {
+    "id": 18,
+    "product_name": "Digital Camera",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Photography",
+    "stock": 7,
+    "price": 499.99,
+    "status": "inactive"
+  },
+  {
+    "id": 19,
+    "product_name": "Tripod",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Photography",
+    "stock": 20,
+    "price": 29.99,
+    "status": "published"
+  },
+  {
+    "id": 20,
+    "product_name": "Portable SSD",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 30,
+    "price": 79.99,
+    "status": "inactive"
+  },
+  {
+    "id": 21,
+    "product_name": "Gaming Chair",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Furniture",
+    "stock": 12,
+    "price": 199.99,
+    "status": "inactive"
+  },
+  {
+    "id": 22,
+    "product_name": "Monitor Stand",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Accessories",
+    "stock": 18,
+    "price": 39.99,
+    "status": "draft list"
+  },
+  {
+    "id": 23,
+    "product_name": "Office Chair",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Furniture",
+    "stock": 5,
+    "price": 129.99,
+    "status": "inactive"
+  },
+  {
+    "id": 24,
+    "product_name": "Smart Light Bulb",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Home",
+    "stock": 50,
+    "price": 19.99,
+    "status": "published"
+  },
+  {
+    "id": 25,
+    "product_name": "Wireless Earbuds",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 25,
+    "price": 49.99,
+    "status": "inactive"
+  },
+  {
+    "id": 26,
+    "product_name": "Running Shoes",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Fitness",
+    "stock": 10,
+    "price": 89.99,
+    "status": "published"
+  },
+  {
+    "id": 27,
+    "product_name": "Tablet",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 8,
+    "price": 299.99,
+    "status": "inactive"
+  },
+  {
+    "id": 28,
+    "product_name": "Leather Wallet",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Accessories",
+    "stock": 0,
+    "price": 24.99,
+    "status": "stock out"
+  },
+  {
+    "id": 29,
+    "product_name": "Power Bank",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Electronics",
+    "stock": 30,
+    "price": 29.99,
+    "status": "published"
+  },
+  {
+    "id": 30,
+    "product_name": "Digital Watch",
+    "product_image": "https://craftypixels.com/placeholder-image/300",
+    "category": "Accessories",
+    "stock": 5,
+    "price": 59.99,
+    "status": "inactive"
+  }
+]
