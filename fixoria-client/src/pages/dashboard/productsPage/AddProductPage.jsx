@@ -12,17 +12,23 @@ import {
 import useTanstackQuery from "@/hook/useTanstackQuery";
 import { Camera } from "lucide-react";
 import { useState } from "react";
-import PlaceholderImage from "../../../assets/dashboard/plahoderimage.png";
+
 import DatePicker from "@/components/custom/DatePicker";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AddProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState("");
   const [status, setStatus] = useState("");
   const [date, setDate] = useState(null);
+
   const [category, setCategory] = useState(null);
+  const [isProduct, setIsProduct] = useState(true);
 
   const { data, isLoading, error } = useTanstackQuery(
     "http://localhost:5000/unit"
@@ -39,6 +45,7 @@ const AddProductPage = () => {
     const finalData = {
       product_name: formData.productName,
       product_code: formData.code,
+      product_type: isProduct ? 1 : 2,
       stock_to_maintain: parseInt(formData.stockToMaintain, 10),
       product_at_price: parseFloat(formData.productAtPrice),
       opening_quantity: parseInt(formData.openingQty, 10),
@@ -55,17 +62,6 @@ const AddProductPage = () => {
 
     axios.post("http://localhost:5000/product", finalData);
     reset();
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   if (isLoading) {
@@ -87,7 +83,31 @@ const AddProductPage = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="px-5 py-6 rounded-md bg-white"
         >
-          <div className="grid grid-cols-2 gap-7">
+          <div className="text-base space-y-2 mb-5">
+            <p>Select your product type!</p>
+
+            <div className="flex items-center space-x-2">
+              <Label
+                htmlFor="isProduct"
+                className={`${!isProduct && "text-blue-600"} text-base`}
+              >
+                Service
+              </Label>
+              <Switch
+                id="isProduct"
+                checked={isProduct}
+                onCheckedChange={() => setIsProduct(!isProduct)}
+              />
+              <Label
+                htmlFor="isProduct"
+                className={`${isProduct && "text-blue-600"} text-base`}
+              >
+                Product
+              </Label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
               <label
                 htmlFor="productName"
@@ -139,7 +159,7 @@ const AddProductPage = () => {
                     <SelectItem disabled>Loading...</SelectItem>
                   ) : (
                     data?.map((unit) => (
-                      <SelectItem key={unit.unit_id} value={unit.unit_id}>
+                      <SelectItem key={unit.unit_id} value={`${unit.unit_id}`}>
                         {unit.unit_name}
                       </SelectItem>
                     ))
@@ -167,132 +187,25 @@ const AddProductPage = () => {
 
             <div>
               <label
-                htmlFor="purchase price"
+                htmlFor="image"
                 className="block mb-2 text-base text-[#333]"
               >
-                Minimum stock to maintain
+                Image
               </label>
 
-              <input
-                {...register("stockToMaintain")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Minimum stock to maintain"
-                id="purchase price"
-              />
-            </div>
-
-            <div className="w-full">
-              <label
-                htmlFor="purchase price"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Product as of date
+              <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer">
+                <input
+                  {...register("image")}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                />
+                <Camera />
+                Upload A Image
               </label>
-
-              <DatePicker date={date} setDate={setDate} />
             </div>
 
-            <div>
-              <label
-                htmlFor="purchase price"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Product At Price
-              </label>
-
-              <input
-                {...register("productAtPrice")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Product at Price"
-                id="purchase price"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-base text-[#333]">
-                Opening Qty
-              </label>
-
-              <input
-                {...register("openingQty")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Enter quantity"
-                id="purchase price"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="purchase price"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Purchase Price
-              </label>
-
-              <input
-                {...register("purchasePrice")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Purchased Price"
-                id="purchase price"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="SalePrice"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Sale Price
-              </label>
-
-              <input
-                {...register("salePrice")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Enter the product price"
-                id="SalePrice"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="wholesale price"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Wholesale Price
-              </label>
-
-              <input
-                {...register("wholesalePrice")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Enter the wholesale product price"
-                id="wholesale price"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="wholesale qty"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Minimum Wholesale Qty
-              </label>
-
-              <input
-                {...register("wholesaleQty")}
-                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="text"
-                placeholder="Wholesale quantity"
-                id="wholesale qty"
-              />
-            </div>
-
-            <div className="flex items-start gap-2 justify-between">
+            <div className="flex items-start gap-6">
               <div>
                 <label
                   htmlFor="status"
@@ -318,37 +231,177 @@ const AddProductPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div>
-                <label
-                  htmlFor="image"
-                  className="block mb-2 text-base text-[#333]"
-                >
-                  Image
-                </label>
-
-                <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer">
-                  <input
-                    {...register("image")}
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                  <Camera />
-                  Upload A Product Image
-                </label>
-              </div>
-
-              <div className="border-gray-300 border rounded-md w-[100px] h-[100px] shrink-0 flex items-center justify-center">
-                <img
-                  src={selectedImage || PlaceholderImage}
-                  alt="Selected"
-                  className="rounded-md w-[90px] h-[90px] object-cover"
-                />
-              </div>
             </div>
           </div>
+
+          <Tabs defaultValue="price" className="mt-16">
+            {isProduct ? (
+              <TabsList className="grid w-[400px] grid-cols-2">
+                <TabsTrigger
+                  value="price"
+                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300 
+        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 
+        data-[state=inactive]:text-gray-500 data-[state=inactive]:border-transparent"
+                >
+                  Price
+                </TabsTrigger>
+                <TabsTrigger
+                  value="stock"
+                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300 
+        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 
+        data-[state=inactive]:text-gray-500 data-[state=inactive]:border-transparent"
+                >
+                  Stock
+                </TabsTrigger>
+              </TabsList>
+            ) : (
+              <TabsList className="w-[200px]">
+                <TabsTrigger
+                  value="price"
+                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300 
+        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 
+        data-[state=inactive]:text-gray-500 data-[state=inactive]:border-transparent"
+                >
+                  Price
+                </TabsTrigger>
+              </TabsList>
+            )}
+
+            <TabsContent value="price">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div>
+                  <label
+                    htmlFor="SalePrice"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Sale Price
+                  </label>
+
+                  <input
+                    {...register("salePrice")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="number"
+                    placeholder="Enter the product price"
+                    id="SalePrice"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="wholesale price"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Wholesale Price
+                  </label>
+
+                  <input
+                    {...register("wholesalePrice")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="number"
+                    placeholder="Enter the wholesale product price"
+                    id="wholesale price"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="wholesale qty"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Minimum Wholesale Qty
+                  </label>
+
+                  <input
+                    {...register("wholesaleQty")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="number"
+                    placeholder="Wholesale quantity"
+                    id="wholesale qty"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="purchase price"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Purchase Price
+                  </label>
+
+                  <input
+                    {...register("purchasePrice")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="number"
+                    placeholder="Purchased Price"
+                    id="purchase price"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stock">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div>
+                  <label
+                    htmlFor="purchase price"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Minimum stock to maintain
+                  </label>
+
+                  <input
+                    {...register("stockToMaintain")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="text"
+                    placeholder="Minimum stock to maintain"
+                    id="purchase price"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="purchase price"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Product as of date
+                  </label>
+
+                  <DatePicker date={date} setDate={setDate} />
+                </div>
+
+                <div>
+                  <label className="block mb-2 text-base text-[#333]">
+                    Opening Qty
+                  </label>
+
+                  <input
+                    {...register("openingQty")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="number"
+                    placeholder="Enter quantity"
+                    id="purchase price"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="product at price"
+                    className="block mb-2 text-base text-[#333]"
+                  >
+                    Product At Price
+                  </label>
+
+                  <input
+                    {...register("productAtPrice")}
+                    className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                    type="number"
+                    placeholder="Product at Price"
+                    id="purchase price"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="max-w-[300px] mx-auto mt-5">
             <button
