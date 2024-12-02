@@ -13,11 +13,10 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Loading from "./Loading";
 
-const ProductCategory = () => {
+const ProductCategory = ({ setCategory }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const dropdownRef = useRef(null);
 
   const {
@@ -31,36 +30,36 @@ const ProductCategory = () => {
     "http://localhost:5000/category"
   );
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (formData) => {
     try {
       const response = await axios.post("http://localhost:5000/category", {
-        category_name: data.category_name,
+        category_name: formData.category_name,
       });
-      setCategories([...categories, response.data.category_name]);
-      setSelectedCategories([
-        ...selectedCategories,
-        response.data.category_name,
-      ]);
+
+      // Refetch to get updated list with new category
+      await refetch();
+
+      // Select the newly created category
+      const newCategory = response.data;
+      selectCategory(newCategory);
+
       reset();
-
       setIsDialogOpen(false);
-
-      refetch();
-
       toast.success("Category Created!");
     } catch (error) {
       toast.error("Category Already Exists!");
     }
   };
 
-  const toggleCategory = (category) => {
-    setSelectedCategories((current) =>
-      current.includes(category)
-        ? current.filter((cat) => cat !== category)
-        : [...current, category]
-    );
+  const selectCategory = (category) => {
+    setSelectedCategory(category);
+
+    // Update the value in the parent form
+    setCategory(category);
+    setIsOpen(false);
   };
 
+  // Click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -77,8 +76,9 @@ const ProductCategory = () => {
   if (isLoading) {
     return <Loading />;
   }
+
   if (error) {
-    return <p>Error</p>;
+    return <p>Error loading categories</p>;
   }
 
   return (
@@ -86,14 +86,13 @@ const ProductCategory = () => {
       <div className="relative">
         <button
           type="button"
-          variant="outline"
           onClick={() => setIsOpen(!isOpen)}
           className="w-full justify-start font-normal p-2 bg-gray-100 border border-gray-300 outline-none rounded text-base"
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          {selectedCategories.length > 0
-            ? selectedCategories.join(", ")
+          {selectedCategory
+            ? selectedCategory.category_name
             : "Select Product Category"}
         </button>
 
@@ -110,23 +109,22 @@ const ProductCategory = () => {
             >
               <Plus /> Add New Category
             </Button>
-            {data.map((category, index) => (
+
+            {data.map((category) => (
               <div
-                key={index}
-                onClick={() => toggleCategory(category?.category_name)}
-                className="flex items-center px-3 py-2 cursor-pointer hover:bg-slate-50"
+                key={category.category_id}
+                onClick={() => selectCategory(category)}
+                className={`px-3 py-2 cursor-pointer hover:bg-slate-50 ${
+                  selectedCategory?.category_id === category.category_id
+                    ? "bg-blue-100"
+                    : ""
+                }`}
                 role="option"
-                aria-selected={selectedCategories.includes(
-                  category?.category_name
-                )}
+                aria-selected={
+                  selectedCategory?.category_id === category.category_id
+                }
               >
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(category?.category_name)}
-                  onChange={() => {}}
-                  className="mr-2"
-                />
-                {category?.category_name}
+                {category.category_name}
               </div>
             ))}
           </div>
@@ -136,8 +134,9 @@ const ProductCategory = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle> Add Category</DialogTitle>
+            <DialogTitle>Add Category</DialogTitle>
           </DialogHeader>
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <input
               {...register("category_name", {
@@ -146,11 +145,13 @@ const ProductCategory = () => {
               placeholder="e.g., Grocery"
               className="w-full px-3 py-2 border rounded-md outline-none"
             />
+
             {errors.category_name && (
               <span className="text-red-600">
                 {errors.category_name.message}
               </span>
             )}
+
             <Button
               type="submit"
               className="w-full bg-defaultBlue hover:bg-defaultBlue text-white"

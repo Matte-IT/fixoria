@@ -13,13 +13,49 @@ import useTanstackQuery from "@/hook/useTanstackQuery";
 import { Camera } from "lucide-react";
 import { useState } from "react";
 import PlaceholderImage from "../../../assets/dashboard/plahoderimage.png";
+import DatePicker from "@/components/custom/DatePicker";
+import { useForm } from "react-hook-form";
+import axios from "axios";
 
 const AddProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState("");
+  const [status, setStatus] = useState("");
+  const [date, setDate] = useState(null);
+  const [category, setCategory] = useState(null);
+
   const { data, isLoading, error } = useTanstackQuery(
     "http://localhost:5000/unit"
   );
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (formData) => {
+    const finalData = {
+      product_name: formData.productName,
+      product_code: formData.code,
+      stock_to_maintain: parseInt(formData.stockToMaintain, 10),
+      product_at_price: parseFloat(formData.productAtPrice),
+      opening_quantity: parseInt(formData.openingQty, 10),
+      purchase_price: parseFloat(formData.purchasePrice),
+      sale_price: parseFloat(formData.salePrice),
+      wholesale_price: parseFloat(formData.wholesalePrice),
+      wholesale_quantity: parseInt(formData.wholesaleQty, 10),
+      unit_id: parseInt(selectedUnit),
+      category_id: category?.category_id,
+      product_as_of_date: date,
+      status,
+      image: selectedImage,
+    };
+
+    axios.post("http://localhost:5000/product", finalData);
+    reset();
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -42,10 +78,16 @@ const AddProductPage = () => {
   return (
     <div>
       <PageTitle title="Create Product" />
+
       <PageName pageName="Create A Product" />
+
+      {/* form */}
       <div className="pt-5">
-        <form action="#" className="px-3 py-6 rounded-md bg-white">
-          <div className="grid grid-cols-2 gap-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="px-5 py-6 rounded-md bg-white"
+        >
+          <div className="grid grid-cols-2 gap-7">
             <div>
               <label
                 htmlFor="productName"
@@ -53,45 +95,51 @@ const AddProductPage = () => {
               >
                 Product Name
               </label>
+
               <input
+                {...register("productName")}
                 className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
                 type="text"
                 placeholder="Enter The Product Name"
                 id="productName"
               />
             </div>
+
             <div>
               <label
-                htmlFor="productCategory"
+                htmlFor="category"
                 className="block mb-2 text-base text-[#333]"
               >
-                Product Category
+                Category
               </label>
-              <ProductCategory />
+
+              <ProductCategory setCategory={setCategory} />
             </div>
+
             <div>
               <label
-                htmlFor="productCategory"
+                htmlFor="unit"
                 className="block mb-2 text-base text-[#333]"
               >
-                Product Unit
+                Unit
               </label>
 
               <Select
                 value={selectedUnit}
-                onValueChange={(value) => setSelectedUnit(value)}
+                onValueChange={(value) => {
+                  setSelectedUnit(value);
+                }}
               >
                 <SelectTrigger className="w-full focus:ring-0 focus:ring-offset-0 p-2 h-[42px]">
-                  <SelectValue placeholder="Select Product Unit">
-                    {selectedUnit || "Select Product Unit"}
-                  </SelectValue>
+                  <SelectValue placeholder="Select Product Unit" />
                 </SelectTrigger>
+
                 <SelectContent>
                   {isLoading ? (
                     <SelectItem disabled>Loading...</SelectItem>
                   ) : (
                     data?.map((unit) => (
-                      <SelectItem key={unit.unit_id} value={unit.unit_name}>
+                      <SelectItem key={unit.unit_id} value={unit.unit_id}>
                         {unit.unit_name}
                       </SelectItem>
                     ))
@@ -102,72 +150,167 @@ const AddProductPage = () => {
 
             <div>
               <label
-                htmlFor="productSKU"
+                htmlFor="productCode"
                 className="block mb-2 text-base text-[#333]"
               >
-                Product SKU
+                Product Code
               </label>
+
               <input
+                {...register("code")}
                 className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
                 type="text"
-                placeholder="Enter The Product SKU"
-                id="productSKU"
+                placeholder="Enter an unique product code"
+                id="productCode"
               />
             </div>
+
             <div>
               <label
-                htmlFor="productIncoming"
+                htmlFor="purchase price"
                 className="block mb-2 text-base text-[#333]"
               >
-                Incoming Product
+                Minimum stock to maintain
               </label>
+
               <input
+                {...register("stockToMaintain")}
                 className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="number"
-                placeholder="Enter The Incoming Product Number"
-                id="productIncoming"
+                type="text"
+                placeholder="Minimum stock to maintain"
+                id="purchase price"
               />
             </div>
+
+            <div className="w-full">
+              <label
+                htmlFor="purchase price"
+                className="block mb-2 text-base text-[#333]"
+              >
+                Product as of date
+              </label>
+
+              <DatePicker date={date} setDate={setDate} />
+            </div>
+
             <div>
               <label
-                htmlFor="productStock"
+                htmlFor="purchase price"
                 className="block mb-2 text-base text-[#333]"
               >
-                Stock Product
+                Product At Price
               </label>
+
               <input
+                {...register("productAtPrice")}
                 className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="number"
-                placeholder="Enter The Stock Product Number"
-                id="productStock"
+                type="text"
+                placeholder="Product at Price"
+                id="purchase price"
               />
             </div>
+
+            <div>
+              <label className="block mb-2 text-base text-[#333]">
+                Opening Qty
+              </label>
+
+              <input
+                {...register("openingQty")}
+                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                type="text"
+                placeholder="Enter quantity"
+                id="purchase price"
+              />
+            </div>
+
             <div>
               <label
-                htmlFor="productPrice"
+                htmlFor="purchase price"
                 className="block mb-2 text-base text-[#333]"
               >
-                Product Price
+                Purchase Price
               </label>
+
               <input
+                {...register("purchasePrice")}
                 className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
-                type="number"
-                placeholder="Enter The Product Price"
-                id="productPrice"
+                type="text"
+                placeholder="Purchased Price"
+                id="purchase price"
               />
             </div>
+
+            <div>
+              <label
+                htmlFor="SalePrice"
+                className="block mb-2 text-base text-[#333]"
+              >
+                Sale Price
+              </label>
+
+              <input
+                {...register("salePrice")}
+                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                type="text"
+                placeholder="Enter the product price"
+                id="SalePrice"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="wholesale price"
+                className="block mb-2 text-base text-[#333]"
+              >
+                Wholesale Price
+              </label>
+
+              <input
+                {...register("wholesalePrice")}
+                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                type="text"
+                placeholder="Enter the wholesale product price"
+                id="wholesale price"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="wholesale qty"
+                className="block mb-2 text-base text-[#333]"
+              >
+                Minimum Wholesale Qty
+              </label>
+
+              <input
+                {...register("wholesaleQty")}
+                className="w-full p-2 border border-gray-300 outline-none rounded bg-gray-100"
+                type="text"
+                placeholder="Wholesale quantity"
+                id="wholesale qty"
+              />
+            </div>
+
             <div className="flex items-start gap-2 justify-between">
               <div>
                 <label
-                  htmlFor="productStatus"
+                  htmlFor="status"
                   className="block mb-2 text-base text-[#333]"
                 >
-                  Product Status
+                  Status
                 </label>
-                <Select>
+
+                <Select
+                  value={status}
+                  onValueChange={(value) => {
+                    setStatus(value);
+                  }}
+                >
                   <SelectTrigger className="w-auto focus:ring-0 focus:ring-offset-0">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
+
                   <SelectContent>
                     <SelectItem value="in stock">In Stock</SelectItem>
                     <SelectItem value="out of stock">Out Of Stock</SelectItem>
@@ -175,15 +318,18 @@ const AddProductPage = () => {
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
                 <label
-                  htmlFor="productImage"
+                  htmlFor="image"
                   className="block mb-2 text-base text-[#333]"
                 >
-                  Product Image
+                  Image
                 </label>
+
                 <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer">
                   <input
+                    {...register("image")}
                     type="file"
                     className="hidden"
                     accept="image/*"
@@ -193,6 +339,7 @@ const AddProductPage = () => {
                   Upload A Product Image
                 </label>
               </div>
+
               <div className="border-gray-300 border rounded-md w-[100px] h-[100px] shrink-0 flex items-center justify-center">
                 <img
                   src={selectedImage || PlaceholderImage}
@@ -202,10 +349,11 @@ const AddProductPage = () => {
               </div>
             </div>
           </div>
+
           <div className="max-w-[300px] mx-auto mt-5">
             <button
               type="submit"
-              className="w-full bg-defaultBlue text-white rounded-md p-2 text-lg"
+              className="w-full bg-defaultBlue hover:bg-defaultBlueHover duration-300 text-white rounded-md p-2 text-lg"
             >
               Upload This Product
             </button>
