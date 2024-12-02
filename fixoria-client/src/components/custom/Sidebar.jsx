@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  BadgeDollarSign,
   ChartNoAxesColumnIncreasing,
   ChevronDown,
   Goal,
@@ -63,6 +64,12 @@ const Sidebar = ({ extraClass }) => {
               </ul>
             </DropDownNavLink>
 
+            <DropDownNavLink dropDownIcon={BadgeDollarSign} dropDownName="Sale">
+              <ul className="relative after:absolute after:content-[''] after:h-full after:w-[2px] after:bg-gray-300 after:top-0 after:-left-3">
+                <DropDownLink pageLink="/sale" pageName="Sale Invoice" />
+              </ul>
+            </DropDownNavLink>
+
             <CustomNavLink pageLink="/settings" pageName="Settings">
               <Settings className="w-[18px] h-[18px]" />
             </CustomNavLink>
@@ -88,9 +95,6 @@ const Sidebar = ({ extraClass }) => {
           <ul>
             <CustomNavLink pageLink="/store" pageName="Online Store">
               <ShoppingBag className="w-[18px] h-[18px]" />
-            </CustomNavLink>
-            <CustomNavLink pageLink="/sale" pageName="Point of Sale">
-              <House className="w-[18px] h-[18px]" />
             </CustomNavLink>
           </ul>
         </nav>

@@ -3,6 +3,7 @@ import MarketingPage from "@/pages/dashboard/marketingPage/MarketingPage";
 import PartiesPage from "@/pages/dashboard/partiesPage/PartiesPage";
 import AddProductPage from "@/pages/dashboard/productsPage/AddProductPage";
 import ProductsPage from "@/pages/dashboard/productsPage/ProductsPage";
+import AddSalePage from "@/pages/dashboard/salePage/AddSalePage";
 import SalePage from "@/pages/dashboard/salePage/SalePage";
 import SettingsPage from "@/pages/dashboard/settingsPage/settingsPage";
 import StorePage from "@/pages/dashboard/storePage/StorePage";
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: "/sale",
         element: <SalePage />,
+      },
+      {
+        path: "/add-sale",
+        element: <AddSalePage />,
       },
     ],
   },
