@@ -3,13 +3,13 @@ import PageTitle from "@/components/custom/PageTitle";
 import { Button } from "@/components/ui/button";
 import { FileChartColumnIncreasing, Plus } from "lucide-react";
 
-const CustomerPage = () => {
+const PartiesPage = () => {
   return (
     <div>
-      <PageTitle title="Customers" />
+      <PageTitle title="Parties" />
 
       <div className="flex gap-3 flex-wrap items-center justify-between mb-6">
-        <PageName pageName="Customers" />
+        <PageName pageName="Parties" />
         <div className="flex flex-wrap items-center gap-3">
           <Button className="flex items-center gap-x-2 bg-white hover:bg-white text-headingTextColor border border-gray-200 font-semibold">
             <FileChartColumnIncreasing />
@@ -25,4 +25,4 @@ const CustomerPage = () => {
   );
 };
 
-export default CustomerPage;
+export default PartiesPage;

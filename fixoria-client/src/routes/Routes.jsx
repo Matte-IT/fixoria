@@ -1,6 +1,6 @@
-import CustomerPage from "@/pages/dashboard/customerPage/CustomerPage";
 import InventoryPage from "@/pages/dashboard/inventoryPage/InventoryPage";
 import MarketingPage from "@/pages/dashboard/marketingPage/MarketingPage";
+import PartiesPage from "@/pages/dashboard/partiesPage/PartiesPage";
 import AddProductPage from "@/pages/dashboard/productsPage/AddProductPage";
 import ProductsPage from "@/pages/dashboard/productsPage/ProductsPage";
 import SalePage from "@/pages/dashboard/salePage/SalePage";
@@ -35,8 +35,8 @@ const router = createBrowserRouter([
         element: <InventoryPage />,
       },
       {
-        path: "/customers",
-        element: <CustomerPage />,
+        path: "/parties",
+        element: <PartiesPage />,
       },
       {
         path: "/settings",

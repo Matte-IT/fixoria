@@ -51,6 +51,10 @@ const Sidebar = ({ extraClass }) => {
               <House className="w-[18px] h-[18px]" />
             </CustomNavLink>
 
+            <CustomNavLink pageLink="/parties" pageName="Parties">
+              <Users className="w-[18px] h-[18px]" />
+            </CustomNavLink>
+
             {/* My Store */}
             <DropDownNavLink dropDownIcon={ShoppingBag} dropDownName="My Store">
               <ul className="relative after:absolute after:content-[''] after:h-full after:w-[2px] after:bg-gray-300 after:top-0 after:-left-3">
@@ -59,9 +63,6 @@ const Sidebar = ({ extraClass }) => {
               </ul>
             </DropDownNavLink>
 
-            <CustomNavLink pageLink="/customers" pageName="Customers">
-              <Users className="w-[18px] h-[18px]" />
-            </CustomNavLink>
             <CustomNavLink pageLink="/settings" pageName="Settings">
               <Settings className="w-[18px] h-[18px]" />
             </CustomNavLink>
