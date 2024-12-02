@@ -16,9 +16,11 @@ app.use(
   })
 );
 
+// Router
 const categoryRouter = require("./routes/categoryRoutes");
 const unitRouter = require("./routes/unitRoutes");
 const productRouter = require("./routes/productRoutes");
+const partyRouter = require("./routes/partyRoutes");
 
 // Routes
 // Category Route
@@ -29,6 +31,9 @@ app.use("/unit", unitRouter);
 
 // product
 app.use("/product", productRouter);
+
+// Party Routes
+app.use("/party", partyRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome To Fixoria!");
