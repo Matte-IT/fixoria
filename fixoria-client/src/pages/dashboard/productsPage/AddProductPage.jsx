@@ -21,11 +21,17 @@ const AddProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState("");
   const [status, setStatus] = useState("");
+
   const [date, setDate] = useState(null);
   const [category, setCategory] = useState(null);
+  const [productType, setProductType] = useState(null);
 
   const { data, isLoading, error } = useTanstackQuery(
     "http://localhost:5000/unit"
+  );
+
+  const { data: itemType } = useTanstackQuery(
+    "http://localhost:5000/product/type"
   );
 
   const {
@@ -39,6 +45,7 @@ const AddProductPage = () => {
     const finalData = {
       product_name: formData.productName,
       product_code: formData.code,
+      product_type: parseInt(productType),
       stock_to_maintain: parseInt(formData.stockToMaintain, 10),
       product_at_price: parseFloat(formData.productAtPrice),
       opening_quantity: parseInt(formData.openingQty, 10),
@@ -52,6 +59,8 @@ const AddProductPage = () => {
       status,
       image: selectedImage,
     };
+
+    console.log(finalData);
 
     axios.post("http://localhost:5000/product", finalData);
     reset();
@@ -107,6 +116,42 @@ const AddProductPage = () => {
 
             <div>
               <label
+                htmlFor="Product Type"
+                className="block mb-2 text-base text-[#333]"
+              >
+                Product Type
+              </label>
+
+              <Select
+                value={productType}
+                onValueChange={(value) => {
+                  setProductType(value);
+                }}
+              >
+                <SelectTrigger className="w-full focus:ring-0 focus:ring-offset-0">
+                  <SelectValue placeholder="Product Type" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {isLoading ? (
+                    <SelectItem disabled>Loading...</SelectItem>
+                  ) : (
+                    itemType?.map((item) => (
+                      <SelectItem
+                        key={item.item_type_id}
+                        value={`${item.item_type_id}`}
+                        className="capitalize"
+                      >
+                        {item.item_type_name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label
                 htmlFor="category"
                 className="block mb-2 text-base text-[#333]"
               >
@@ -139,7 +184,7 @@ const AddProductPage = () => {
                     <SelectItem disabled>Loading...</SelectItem>
                   ) : (
                     data?.map((unit) => (
-                      <SelectItem key={unit.unit_id} value={unit.unit_id}>
+                      <SelectItem key={unit.unit_id} value={`${unit.unit_id}`}>
                         {unit.unit_name}
                       </SelectItem>
                     ))
