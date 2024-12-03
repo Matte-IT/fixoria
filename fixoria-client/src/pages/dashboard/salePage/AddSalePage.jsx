@@ -24,11 +24,24 @@ import { toast } from "react-toastify";
 const AddSalePage = () => {
   const [tabs, setTabs] = useState([{ id: 1, title: "Sale #1" }]);
   const [activeTab, setActiveTab] = useState(1);
-  const [date, setDate] = useState(new Date());
-  const [rows, setRows] = useState([
-    { id: 1, item: "", quantity: "", unit: "", price: "", amount: "" },
-    { id: 2, item: "", quantity: "", price: "", unit: "", amount: "" },
-  ]);
+  
+  // Create a state object to store form data for each tab
+  const [tabsData, setTabsData] = useState({
+    1: {
+      date: new Date(),
+      rows: [
+        { id: 1, item: "", quantity: "", unit: "", price: "", amount: "" },
+        { id: 2, item: "", quantity: "", price: "", unit: "", amount: "" },
+      ],
+      party: "",
+      billingAddress: "",
+      invoiceNumber: "",
+      description: "",
+      discount: "",
+      discountAmount: "",
+      tax: "",
+    }
+  });
 
   const addNewTab = () => {
     if (tabs.length < 5) {
@@ -38,7 +51,25 @@ const AddSalePage = () => {
         title: `Sale #${newId}`,
       };
       setTabs([...tabs, newTab]);
-      setActiveTab(newTab.id);
+      // Initialize state for the new tab
+      setTabsData(prev => ({
+        ...prev,
+        [newId]: {
+          date: new Date(),
+          rows: [
+            { id: 1, item: "", quantity: "", unit: "", price: "", amount: "" },
+            { id: 2, item: "", quantity: "", price: "", unit: "", amount: "" },
+          ],
+          party: "",
+          billingAddress: "",
+          invoiceNumber: "",
+          description: "",
+          discount: "",
+          discountAmount: "",
+          tax: "",
+        }
+      }));
+      setActiveTab(newId);
     } else {
       toast.error("Max. 5 Tabs");
     }
@@ -53,33 +84,58 @@ const AddSalePage = () => {
         id: index + 1,
       }));
 
+    // Remove data for the closed tab and reorganize remaining tab data
+    const newTabsData = {};
+    newTabs.forEach((tab, index) => {
+      const oldId = tab.id;
+      const newId = index + 1;
+      newTabsData[newId] = tabsData[oldId];
+    });
+
+    setTabsData(newTabsData);
     setTabs(newTabs);
     setActiveTab(newTabs[newTabs.length - 1].id);
   };
 
   const addNewRow = () => {
-    const newId = Math.max(...rows.map((row) => row.id)) + 1;
-    setRows([
-      ...rows,
+    const currentRows = tabsData[activeTab].rows;
+    const newId = Math.max(...currentRows.map((row) => row.id)) + 1;
+    const newRows = [
+      ...currentRows,
       { id: newId, item: "", quantity: "", unit: "", price: "", amount: "" },
-    ]);
+    ];
+    
+    setTabsData(prev => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        rows: newRows
+      }
+    }));
   };
 
   const deleteRow = (rowId) => {
-    if (rows.length > 1) {
-      const newRows = rows.filter((row) => row.id !== rowId);
-      setRows(newRows);
+    const currentRows = tabsData[activeTab].rows;
+    if (currentRows.length > 1) {
+      const newRows = currentRows.filter((row) => row.id !== rowId);
+      setTabsData(prev => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          rows: newRows
+        }
+      }));
     } else {
       toast.error("Cannot delete the last row");
     }
   };
 
   const updateRow = (id, field, value) => {
-    const newRows = rows.map((row) => {
+    const currentRows = tabsData[activeTab].rows;
+    const newRows = currentRows.map((row) => {
       if (row.id === id) {
         const updates = { [field]: value };
 
-        // Calculate amount if quantity or price changes
         if (field === "quantity" || field === "price") {
           const quantity =
             field === "quantity"
@@ -96,11 +152,19 @@ const AddSalePage = () => {
       }
       return row;
     });
-    setRows(newRows);
+
+    setTabsData(prev => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        rows: newRows
+      }
+    }));
   };
 
   const calculateTotals = () => {
-    return rows.reduce(
+    const currentRows = tabsData[activeTab].rows;
+    return currentRows.reduce(
       (acc, row) => ({
         quantity: acc.quantity + (parseFloat(row.quantity) || 0),
         amount: acc.amount + (parseFloat(row.amount) || 0),
@@ -218,7 +282,12 @@ const AddSalePage = () => {
                       Invoice Date
                     </label>
                     <div className="w-[230px]">
-                      <DatePicker date={date} setDate={setDate} />
+                      <DatePicker date={tabsData[activeTab].date} setDate={(newDate) => {
+                        setTabsData(prev => ({
+                          ...prev,
+                          [activeTab]: { ...prev[activeTab], date: newDate }
+                        }));
+                      }} />
                     </div>
                   </div>
                 </div>
@@ -237,12 +306,12 @@ const AddSalePage = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {rows.map((row) => (
+                    {tabsData[activeTab].rows.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell className="p-1">
                           <div className="flex items-center gap-2 text-base">
                             <div className="span w-[10px]">{row.id}</div>
-                            {rows.length > 1 && (
+                            {tabsData[activeTab].rows.length > 1 && (
                               <button
                                 type="button"
                                 className="text-red-600"
