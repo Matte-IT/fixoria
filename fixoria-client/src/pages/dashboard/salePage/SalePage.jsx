@@ -13,6 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import GraphView from "./GraphView";
 
 const columnHelper = createColumnHelper();
 
@@ -107,11 +109,26 @@ export const data = [
 ];
 
 const SalePage = () => {
+  const [view, setView] = useState("table");
+
+  // Sample data for the graph
+  const salesData = [
+    { date: "2024-01-01", sales: 0 },
+    { date: "2024-01-15", sales: 100 },
+    { date: "2024-02-01", sales: 200 },
+    { date: "2024-03-01", sales: 300 },
+    { date: "2024-12-03", sales: 700 },
+  ];
+
+  if (view === "graph") {
+    return <GraphView setView={setView} />;
+  }
+
   return (
     <div>
       <PageTitle title="Sale Invoice" />
 
-      <SalePageHeader />
+      <SalePageHeader setView={setView} />
 
       <div className="flex gap-3 flex-wrap items-center justify-between my-6">
         <PageName pageName="Sale Invoice" />
