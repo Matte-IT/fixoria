@@ -42,7 +42,7 @@ const options = {
   ],
 };
 
-export function SalePageHeader() {
+export function SalePageHeader({ setView }) {
   const [timeRange, setTimeRange] = useState("all");
   const [date, setDate] = useState({
     from: new Date(2024, 0, 1),
@@ -117,9 +117,17 @@ export function SalePageHeader() {
 
         {/* icons */}
         <div className="flex gap-5">
-          <ChartNoAxesColumn />
-          <FileSpreadsheet />
-          <Printer />
+          <div className="relative group cursor-pointer" title="Graph View">
+            <ChartNoAxesColumn onClick={() => setView("graph")} />
+          </div>
+
+          <div title="Export excel format">
+            <FileSpreadsheet />
+          </div>
+
+          <div title="Print">
+            <Printer />
+          </div>
         </div>
       </div>
 
