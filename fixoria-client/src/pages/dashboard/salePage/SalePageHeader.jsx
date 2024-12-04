@@ -27,6 +27,7 @@ import {
   Plus,
   Printer,
 } from "lucide-react";
+import DownloadData from "./DowloadData";
 
 const options = {
   timeRanges: [
@@ -42,7 +43,7 @@ const options = {
   ],
 };
 
-export function SalePageHeader({ setView }) {
+export function SalePageHeader({ setView, data }) {
   const [timeRange, setTimeRange] = useState("all");
   const [date, setDate] = useState({
     from: new Date(2024, 0, 1),
@@ -121,9 +122,7 @@ export function SalePageHeader({ setView }) {
             <ChartNoAxesColumn onClick={() => setView("graph")} />
           </div>
 
-          <div title="Export excel format">
-            <FileSpreadsheet />
-          </div>
+          <DownloadData data={data} />
 
           <div title="Print">
             <Printer />
