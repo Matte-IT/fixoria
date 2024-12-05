@@ -20,14 +20,9 @@ import {
 
 import { Input } from "@/components/ui/input";
 import Card from "./Card";
-import {
-  ChartNoAxesColumn,
-  Equal,
-  FileSpreadsheet,
-  Plus,
-  Printer,
-} from "lucide-react";
+import { ChartNoAxesColumn, Equal, Plus } from "lucide-react";
 import DownloadData from "./DowloadData";
+import PrintData from "./PrintData";
 
 const options = {
   timeRanges: [
@@ -125,7 +120,7 @@ export function SalePageHeader({ setView, data }) {
           <DownloadData data={data} />
 
           <div title="Print">
-            <Printer />
+            <PrintData />
           </div>
         </div>
       </div>

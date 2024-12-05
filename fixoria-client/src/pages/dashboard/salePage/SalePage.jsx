@@ -6,7 +6,7 @@ import { SalePageHeader } from "./SalePageHeader";
 import { createColumnHelper } from "@tanstack/react-table";
 import DataTable from "@/components/custom/table/DataTable";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Edit, MoreVertical, Printer, Trash } from "lucide-react";
+import { Edit, MoreVertical, Printer, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,

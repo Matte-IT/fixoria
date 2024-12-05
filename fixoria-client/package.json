@@ -27,6 +27,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "lucide": "^0.456.0",
     "lucide-react": "^0.456.0",
     "react": "^18.3.1",
@@ -38,7 +40,7 @@
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.6",
     "recharts": "^2.14.1",
-    "sweetalert2": "^11.14.5",
+    "sweetalert2": "^11.6.13",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "xlsx": "^0.18.5"
