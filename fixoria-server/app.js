@@ -27,7 +27,7 @@ const partyRouter = require("./routes/partyRoutes");
 app.use("/category", categoryRouter);
 
 // Unit Route
-app.use("/unit", unitRouter);
+app.use("fixoria/fixoria-server/unit", unitRouter);
 
 // product
 app.use("/product", productRouter);
