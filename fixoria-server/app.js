@@ -35,8 +35,8 @@ app.use("/product", productRouter);
 // Party Routes
 app.use("/party", partyRouter);
 
-app.get("/", (req, res) => {
-  res.send("Welcome To Fixoria!");
+app.get("fixoria/fixoria-server/", (req, res) => {
+  res.send("Welcome To Fixoria server!");
 });
 
 app.listen(port, () => {
