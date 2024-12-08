@@ -24,18 +24,18 @@ const partyRouter = require("./routes/partyRoutes");
 
 // Routes
 // Category Route
-app.use("fixoria/fixoria-server/category", categoryRouter);
+app.use("/fixoria/fixoria-server/category", categoryRouter);
 
 // Unit Route
-app.use("fixoria/fixoria-server/unit", unitRouter);
+app.use("/fixoria/fixoria-server/unit", unitRouter);
 
 // product
-app.use("fixoria/fixoria-server/product", productRouter);
+app.use("/fixoria/fixoria-server/product", productRouter);
 
 // Party Routes
-app.use("/party", partyRouter);
+app.use("/fixoria/fixoria-server/party", partyRouter);
 
-app.get("fixoria/fixoria-server/test", (req, res) => {
+app.get("/fixoria/fixoria-server/test", (req, res) => {
   res.send("Welcome To Fixoria server!");
 });
 
