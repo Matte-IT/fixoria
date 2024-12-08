@@ -30,7 +30,7 @@ app.use("/category", categoryRouter);
 app.use("fixoria/fixoria-server/unit", unitRouter);
 
 // product
-app.use("/product", productRouter);
+app.use("fixoria/fixoria-server/product", productRouter);
 
 // Party Routes
 app.use("/party", partyRouter);
