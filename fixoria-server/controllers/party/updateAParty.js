@@ -8,7 +8,7 @@ const updateAParty = async (req, res) => {
     // console.log("Update request received:", { id, ...req.body });
 
     const result = await pool.query(
-      "UPDATE parties SET party_name = $1, phone_number = $2, email = $3, billing_address = $4 WHERE party_id = $5 RETURNING *",
+      "UPDATE party.party SET party_name = $1, phone_number = $2, email = $3, billing_address = $4 WHERE party_id = $5 RETURNING *",
       [party_name, phone_number, email, billing_address, id]
     );
 

@@ -35,7 +35,7 @@ app.use("/fixoria/fixoria-server/product", productRouter);
 // Party Routes
 app.use("/fixoria/fixoria-server/party", partyRouter);
 
-app.get("/fixoria/fixoria-server/test", (req, res) => {
+app.get("/fixoria/fixoria-server", (req, res) => {
   res.send("Welcome To Fixoria server!");
 });
 

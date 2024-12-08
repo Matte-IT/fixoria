@@ -11,7 +11,7 @@ const createCategory = async (req, res) => {
   try {
     // Check if the category_name already exists
     const existingCategory = await pool.query(
-      `SELECT * FROM categories WHERE category_name = $1`,
+      `SELECT * FROM inventory.item_categories WHERE category_name = $1`,
       [category_name]
     );
 
@@ -21,7 +21,7 @@ const createCategory = async (req, res) => {
 
     // Insert the new category
     const newCategory = await pool.query(
-      "INSERT INTO categories (category_name, parent_category_id) VALUES ($1, $2) RETURNING *",
+      "INSERT INTO inventory.item_categories (category_name, parent_category_id) VALUES ($1, $2) RETURNING *",
       [category_name, parent_category_id || null]
     );
 

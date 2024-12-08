@@ -6,7 +6,7 @@ const deleteAParty = async (req, res) => {
   try {
     // Delete the party with the given id
     const result = await pool.query(
-      "DELETE FROM parties WHERE party_id = $1 RETURNING *",
+      "DELETE FROM party.party WHERE party_id = $1 RETURNING *",
       [id]
     );
 

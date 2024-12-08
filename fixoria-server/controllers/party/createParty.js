@@ -16,7 +16,7 @@ const createParty = async (req, res) => {
   try {
     // Insert the new party
     const newParty = await pool.query(
-      "INSERT INTO parties (party_name, phone_number, email, billing_address) VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO party.party (party_name, phone_number, email, billing_address) VALUES ($1, $2, $3, $4) RETURNING *",
       [party_name, phone_number || null, email || null, billing_address || null]
     );
 

@@ -2,7 +2,7 @@ const pool = require("../../config/database");
 
 async function getProductType(req, res) {
   try {
-    const result = await pool.query("SELECT * FROM item_type");
+    const result = await pool.query("SELECT * FROM inventory.item_type");
 
     res.json(result.rows);
   } catch (error) {

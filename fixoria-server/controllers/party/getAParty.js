@@ -5,7 +5,7 @@ const getAParty = async (req, res) => {
 
   try {
     const result = await pool.query(
-      "SELECT * FROM parties WHERE party_id = $1",
+      "SELECT * FROM party.party WHERE party_id = $1",
       [id]
     );
 
