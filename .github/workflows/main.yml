@@ -1,23 +1,24 @@
-name: FTP Test
+name: Publish Website to CPanel
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  deploy:
-    name: 🚀 Deploy website on every commit
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
-      - name: 📂 Sync files via FTP
+      - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@3.1.1
         with:
           server: ftp.matteit.com
-          username: ${{ secrets.FTP_USERNAME }}
+          username: fixoria_two@matteit.com
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
