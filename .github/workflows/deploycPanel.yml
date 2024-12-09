@@ -1,0 +1,22 @@
+name: FTP Test
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: 🚀 Deploy website on every commit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 📂 Sync files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+        with:
+          server: ftp.matteit.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
