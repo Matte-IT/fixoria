@@ -1,24 +1,18 @@
-name: FTP Deploy
-
+name: Publish Website to CPanel
 on:
   push:
-    branches:
-      - main # Deploy on push to the main branch
-
+    branches: main
 jobs:
-  deploy:
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Upload via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4
-        with:
-          ftp-server: ${{ secrets.FTP_SERVER }}
-          ftp-username: ${{ secrets.FTP_USERNAME }}
-          ftp-password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./build # Directory to upload
-          server-dir: /public_html/ # Destination on server
-
+      uses: actions/checkout@v2.1.0
+      with:
+        fetch-depth: 2
+      name: FTP-Deploy-Action
+    uses: SamKirkland/FTP-Deploy-Action@3.1.1
+    with:
+      ftp-server: ${{ secrets.FTP_SERVER }}
+      ftp-username: ${{ secrets.FTP_USERNAME }}
+      ftp-password: S{{ secrets. FTP_PASSWORD }}
