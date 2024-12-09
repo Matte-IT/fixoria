@@ -42,3 +42,5 @@ app.get("/fixoria/fixoria-server", (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
 });
+
+// check ci/cd
