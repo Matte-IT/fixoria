@@ -38,8 +38,11 @@ app.get("/fixoria/fixoria-server", (req, res) => {
   res.send("Welcome To Fixoria server!");
 });
 
-// jahid loves a pakistani girl :D
+app.get("/", (req, res) => {
+  res.send("Test route is working!");
+});
 
+// jahid loves a pakistani girl :D
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
 });
