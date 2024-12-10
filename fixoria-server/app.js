@@ -1,11 +1,13 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-console.log(typeof process.env.DB_PASSWORD);
+console.log(__dirname);
+console.log(__filename);
 
 // Middleware
 app.use(express.json());
