@@ -13,13 +13,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useLocalQuery from "@/hook/useLocalQuery";
 
-import useTanstackQuery from "@/hook/useTanstackQuery";
 import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 
 const ProductsPage = () => {
-  const { data, isLoading, error } = useTanstackQuery("./products.json");
+  const { data, isLoading, error } = useLocalQuery("./products.json");
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const columns = [

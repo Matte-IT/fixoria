@@ -5,7 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import axios from "axios";
+import { axiosInstance } from "@/hook/useTanstackQuery";
+
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -36,14 +37,14 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
     try {
       if (defaultValues?.party_id) {
         // Update party logic
-        const response = await axios.put(
+        const response = await axiosInstance.put(
           `/party/${defaultValues.party_id}`,
           formData
         );
         toast.success("Party Updated Successfully!");
       } else {
         // Create new party logic
-        const response = await axios.post("/party", formData);
+        const response = await axiosInstance.post("/party", formData);
         toast.success("Party Created Successfully!");
       }
       reset(); // Reset form fields after submission
@@ -86,15 +87,22 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
             </div>
             <div>
               <CustomLabel
-                htmlFor={"phone_number"}
-                labelName={"Party Phone Number"}
+                htmlFor={"party_number"}
+                labelName={"Party Number"}
               />
               <CustomInput
                 inputType={"text"}
-                inputName={"phone_number"}
-                inputId={"phone_number"}
-                {...register("phone_number")}
+                inputName={"party_number"}
+                inputId={"party_number"}
+                {...register("party_number", {
+                  required: "Party Number is required",
+                })}
               />
+              {errors.party_number && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.party_number.message}
+                </p>
+              )}
             </div>
             <div>
               <CustomLabel htmlFor={"email"} labelName={"Party Email"} />
