@@ -37,16 +37,13 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
       if (defaultValues?.party_id) {
         // Update party logic
         const response = await axios.put(
-          `http://localhost:5000/party/${defaultValues.party_id}`,
+          `/party/${defaultValues.party_id}`,
           formData
         );
         toast.success("Party Updated Successfully!");
       } else {
         // Create new party logic
-        const response = await axios.post(
-          "http://localhost:5000/party",
-          formData
-        );
+        const response = await axios.post("/party", formData);
         toast.success("Party Created Successfully!");
       }
       reset(); // Reset form fields after submission

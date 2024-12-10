@@ -26,13 +26,11 @@ const ProductCategory = ({ setCategory }) => {
     formState: { errors },
   } = useForm();
 
-  const { data, isLoading, error, refetch } = useTanstackQuery(
-    "http://localhost:5000/category"
-  );
+  const { data, isLoading, error, refetch } = useTanstackQuery("/category");
 
   const onSubmit = async (formData) => {
     try {
-      const response = await axios.post("http://localhost:5000/category", {
+      const response = await axios.post("/category", {
         category_name: formData.category_name,
       });
 

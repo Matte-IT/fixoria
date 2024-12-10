@@ -24,7 +24,7 @@ import { toast } from "react-toastify";
 const AddSalePage = () => {
   const [tabs, setTabs] = useState([{ id: 1, title: "Sale #1" }]);
   const [activeTab, setActiveTab] = useState(1);
-  
+
   // Create a state object to store form data for each tab
   const [tabsData, setTabsData] = useState({
     1: {
@@ -40,7 +40,7 @@ const AddSalePage = () => {
       discount: "",
       discountAmount: "",
       tax: "",
-    }
+    },
   });
 
   const addNewTab = () => {
@@ -52,7 +52,7 @@ const AddSalePage = () => {
       };
       setTabs([...tabs, newTab]);
       // Initialize state for the new tab
-      setTabsData(prev => ({
+      setTabsData((prev) => ({
         ...prev,
         [newId]: {
           date: new Date(),
@@ -67,7 +67,7 @@ const AddSalePage = () => {
           discount: "",
           discountAmount: "",
           tax: "",
-        }
+        },
       }));
       setActiveTab(newId);
     } else {
@@ -104,13 +104,13 @@ const AddSalePage = () => {
       ...currentRows,
       { id: newId, item: "", quantity: "", unit: "", price: "", amount: "" },
     ];
-    
-    setTabsData(prev => ({
+
+    setTabsData((prev) => ({
       ...prev,
       [activeTab]: {
         ...prev[activeTab],
-        rows: newRows
-      }
+        rows: newRows,
+      },
     }));
   };
 
@@ -118,12 +118,12 @@ const AddSalePage = () => {
     const currentRows = tabsData[activeTab].rows;
     if (currentRows.length > 1) {
       const newRows = currentRows.filter((row) => row.id !== rowId);
-      setTabsData(prev => ({
+      setTabsData((prev) => ({
         ...prev,
         [activeTab]: {
           ...prev[activeTab],
-          rows: newRows
-        }
+          rows: newRows,
+        },
       }));
     } else {
       toast.error("Cannot delete the last row");
@@ -153,12 +153,12 @@ const AddSalePage = () => {
       return row;
     });
 
-    setTabsData(prev => ({
+    setTabsData((prev) => ({
       ...prev,
       [activeTab]: {
         ...prev[activeTab],
-        rows: newRows
-      }
+        rows: newRows,
+      },
     }));
   };
 
@@ -173,14 +173,12 @@ const AddSalePage = () => {
     );
   };
 
-  const { data, isLoading, error } = useTanstackQuery(
-    "http://localhost:5000/party"
-  );
+  const { data, isLoading, error } = useTanstackQuery("/party");
   const {
     data: units,
     isLoading: loading,
     error: fetchError,
-  } = useTanstackQuery("http://localhost:5000/unit");
+  } = useTanstackQuery("/unit");
 
   if (isLoading || loading) return <Loading />;
   if (error || fetchError) return <p>Error</p>;
@@ -282,12 +280,15 @@ const AddSalePage = () => {
                       Invoice Date
                     </label>
                     <div className="w-[230px]">
-                      <DatePicker date={tabsData[activeTab].date} setDate={(newDate) => {
-                        setTabsData(prev => ({
-                          ...prev,
-                          [activeTab]: { ...prev[activeTab], date: newDate }
-                        }));
-                      }} />
+                      <DatePicker
+                        date={tabsData[activeTab].date}
+                        setDate={(newDate) => {
+                          setTabsData((prev) => ({
+                            ...prev,
+                            [activeTab]: { ...prev[activeTab], date: newDate },
+                          }));
+                        }}
+                      />
                     </div>
                   </div>
                 </div>

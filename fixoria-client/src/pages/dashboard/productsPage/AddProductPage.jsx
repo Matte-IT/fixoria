@@ -30,9 +30,7 @@ const AddProductPage = () => {
   const [category, setCategory] = useState(null);
   const [isProduct, setIsProduct] = useState(true);
 
-  const { data, isLoading, error } = useTanstackQuery(
-    "http://localhost:5000/unit"
-  );
+  const { data, isLoading, error } = useTanstackQuery("/unit");
 
   const {
     register,
@@ -60,7 +58,7 @@ const AddProductPage = () => {
       image: selectedImage,
     };
 
-    axios.post("http://localhost:5000/product", finalData);
+    axios.post("/product", finalData);
     reset();
   };
 

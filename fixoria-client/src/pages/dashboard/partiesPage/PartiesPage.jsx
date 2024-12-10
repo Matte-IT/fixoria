@@ -23,9 +23,7 @@ const PartiesPage = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedParty, setSelectedParty] = useState(null);
 
-  const { data, isLoading, error, refetch } = useTanstackQuery(
-    "http://localhost:5000/party"
-  );
+  const { data, isLoading, error, refetch } = useTanstackQuery("/party");
 
   const handleDelete = (partyId) => {
     setOpenMenuId(null);
@@ -41,7 +39,7 @@ const PartiesPage = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:5000/party/${partyId}`);
+          await axios.delete(`/party/${partyId}`);
           toast.success("Party deleted successfully!");
           refetch();
         } catch (error) {
