@@ -3,7 +3,9 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 5432;
+const port = process.env.PORT || 5000;
+
+console.log(typeof process.env.DB_PASSWORD);
 
 // Middleware
 app.use(express.json());
