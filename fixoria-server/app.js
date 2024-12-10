@@ -1,20 +1,15 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 
 const app = express();
 const port = process.env.PORT || 5000;
-
-console.log(__dirname);
-console.log(__filename);
 
 // Middleware
 app.use(express.json());
 app.use(
   cors({
-    // origin: ["http://localhost:5173"],
-    origin: true,
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -28,25 +23,21 @@ const productRouter = require("./routes/productRoutes");
 const partyRouter = require("./routes/partyRoutes");
 
 // Category Route
-app.use("/fixoria-server/category", categoryRouter);
+app.use("/api/category", categoryRouter);
 
 // Unit Route
-app.use("/fixoria-server/unit", unitRouter);
+app.use("/api/unit", unitRouter);
 
 // product
-app.use("/fixoria-server/product", productRouter);
+app.use("/api/product", productRouter);
 
 // Party Routes
-app.use("/fixoria-server/party", partyRouter);
+app.use("/api/party", partyRouter);
 
-app.get("/fixoria-server", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("Welcome To Fixoria server!");
 });
 
-// jahid loves a pakistani girl :D
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
 });
-
-// changes make to check ci/cd
-// testing - 3
