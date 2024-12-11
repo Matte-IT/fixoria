@@ -10,8 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useTanstackQuery from "@/hook/useTanstackQuery";
-import axios from "axios";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { Ellipsis, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -25,10 +24,36 @@ const PartiesPage = () => {
 
   const { data, isLoading, error, refetch } = useTanstackQuery("/party");
 
-  const handleDelete = (partyId) => {
+  // const handleDelete = (partyId) => {
+  //   setOpenMenuId(null);
+
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, delete it!",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       try {
+  //         await axios.delete(`/party/${partyId}`);
+  //         toast.success("Party deleted successfully!");
+  //         refetch();
+  //       } catch (error) {
+  //         toast.error("Failed to delete party");
+  //       }
+  //     }
+  //   });
+  // };
+
+  const handleDelete = async (partyId) => {
+    // Close any open menu
     setOpenMenuId(null);
 
-    Swal.fire({
+    // Show SweetAlert confirmation
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
@@ -36,17 +61,33 @@ const PartiesPage = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`/party/${partyId}`);
-          toast.success("Party deleted successfully!");
-          refetch();
-        } catch (error) {
-          toast.error("Failed to delete party");
-        }
-      }
     });
+
+    // Proceed only if confirmed
+    if (result.isConfirmed) {
+      try {
+        // Send PATCH request to update is_deleted to true
+        const response = await axiosInstance.patch(`/party/${partyId}`, {
+          is_deleted: true,
+        });
+
+        // Show success toast notification
+        toast.success(response.data.message || "Deleted successfully!");
+
+        // Refresh the data (e.g., re-fetch parties)
+        refetch();
+      } catch (error) {
+        // Handle error scenarios
+        const errorMessage =
+          error.response?.data?.message || "Failed to delete party";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+  const handleDialogClose = () => {
+    setSelectedParty(null);
+    setIsDialogOpen(false);
   };
 
   const columns = [
@@ -97,7 +138,13 @@ const PartiesPage = () => {
             <DropdownMenuLabel
               className="cursor-pointer"
               onClick={() => {
-                setSelectedParty(row.original);
+                const partyData = row.original;
+
+                setSelectedParty({
+                  ...partyData,
+                  opening_balance: partyData.opening_balance || "",
+                  balance_as_of_date: partyData.balance_as_of_date,
+                });
                 setIsDialogOpen(true);
                 setOpenMenuId(null);
               }}
@@ -133,19 +180,26 @@ const PartiesPage = () => {
         <PageName pageName="Parties" />
         <div className="flex flex-wrap items-center gap-3">
           <Export />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => {
+              if (!open) {
+                handleDialogClose();
+              }
+            }}
+          >
             <DialogTrigger
               className="bg-defaultBlue p-2 rounded-md flex items-center gap-x-2 text-white text-base"
-              onClick={() => setSelectedParty(null)}
+              onClick={() => {
+                setSelectedParty(null);
+                setIsDialogOpen(true);
+              }}
             >
               <Plus width="16px" height="16px" />
               Add Parties
             </DialogTrigger>
             <PartyForm
-              onClose={() => {
-                setSelectedParty(null);
-                setIsDialogOpen(false);
-              }}
+              onClose={handleDialogClose}
               refetch={refetch}
               defaultValues={selectedParty}
             />
