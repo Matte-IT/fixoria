@@ -4,23 +4,27 @@ const deleteAParty = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Delete the party with the given id
+    // Update is_deleted to true for the specified party
     const result = await pool.query(
-      "DELETE FROM party.party WHERE party_id = $1 RETURNING *",
+      `
+      UPDATE party.party
+      SET is_deleted = true
+      WHERE party_id = $1
+      RETURNING party_name
+      `,
       [id]
     );
 
-    // Check if the party was found and deleted
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "Party not found" });
     }
 
-    res.status(200).json({ message: "Party deleted successfully" });
+    res.status(200).json({
+      message: `${result.rows[0].party_name} Deleted successfully`,
+    });
   } catch (err) {
-    console.error("Error deleting party:", err.message);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: err.message });
+    console.error("Error marking party as deleted:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

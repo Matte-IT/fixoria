@@ -13,7 +13,47 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const PartyForm = ({ onClose, refetch, defaultValues }) => {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState(() => {
+    if (defaultValues?.balance_as_of_date) {
+      try {
+        const parsedDate = new Date(defaultValues.balance_as_of_date);
+        if (!isNaN(parsedDate.getTime())) {
+          return new Date(
+            parsedDate.getFullYear(),
+            parsedDate.getMonth(),
+            parsedDate.getDate(),
+            12
+          );
+        }
+      } catch (e) {
+        console.error("Error parsing date:", e);
+      }
+    }
+    return null; // Return null for new parties
+  });
+
+  // Reset form when defaultValues changes
+  useEffect(() => {
+    if (defaultValues?.balance_as_of_date) {
+      try {
+        const parsedDate = new Date(defaultValues.balance_as_of_date);
+        if (!isNaN(parsedDate.getTime())) {
+          setDate(
+            new Date(
+              parsedDate.getFullYear(),
+              parsedDate.getMonth(),
+              parsedDate.getDate(),
+              12
+            )
+          );
+        }
+      } catch (e) {
+        console.error("Error parsing date:", e);
+      }
+    } else {
+      setDate(null); // Reset date when creating new party
+    }
+  }, [defaultValues]);
 
   const {
     register,
@@ -38,26 +78,34 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
 
   const onSubmit = async (formData) => {
     try {
-      // Add the `date` to formData
-      const dataWithDate = { ...formData, balance_as_of_date: date };
+      const formattedDate = date
+        ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+            2,
+            "0"
+          )}-${String(date.getDate()).padStart(2, "0")}`
+        : null;
+
+      const dataWithDate = {
+        ...formData,
+        balance_as_of_date: formattedDate,
+      };
 
       if (defaultValues?.party_id) {
-        // Update party logic
-        const response = await axiosInstance.put(
+        await axiosInstance.put(
           `/party/${defaultValues.party_id}`,
           dataWithDate
         );
         toast.success("Party Updated Successfully!");
       } else {
-        // Create new party logic
-        const response = await axiosInstance.post("/party", dataWithDate);
+        await axiosInstance.post("/party", dataWithDate);
         toast.success("Party Created Successfully!");
       }
-      reset(); // Reset form fields after submission
+
+      reset();
+      setDate(null); // Reset date after submission
       refetch();
-      onClose(); // Close the modal
+      onClose();
     } catch (error) {
-      console.error("API Error:", error);
       toast.error(`Error: ${error.message}`);
     }
   };
@@ -144,7 +192,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
               <CustomInput
                 inputType={"number"}
                 inputName={"opening_balance"}
-                inputId={"billing_address"}
+                inputId={"opening_balance"}
                 {...register("opening_balance")}
               />
             </div>
@@ -157,7 +205,12 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
                 Balance as of date
               </label>
 
-              <DatePicker date={date} setDate={setDate} />
+              <DatePicker
+                date={date}
+                setDate={(newDate) => {
+                  setDate(newDate);
+                }}
+              />
             </div>
           </div>
 
