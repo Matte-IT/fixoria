@@ -1,3 +1,4 @@
+import DatePicker from "@/components/custom/DatePicker";
 import CustomInput from "@/components/custom/shared/CustomInput";
 import CustomLabel from "@/components/custom/shared/CustomLabel";
 import {
@@ -7,11 +8,13 @@ import {
 } from "@/components/ui/dialog";
 import { axiosInstance } from "@/hook/useTanstackQuery";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const PartyForm = ({ onClose, refetch, defaultValues }) => {
+  const [date, setDate] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -35,16 +38,19 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
 
   const onSubmit = async (formData) => {
     try {
+      // Add the `date` to formData
+      const dataWithDate = { ...formData, balance_as_of_date: date };
+
       if (defaultValues?.party_id) {
         // Update party logic
         const response = await axiosInstance.put(
           `/party/${defaultValues.party_id}`,
-          formData
+          dataWithDate
         );
         toast.success("Party Updated Successfully!");
       } else {
         // Create new party logic
-        const response = await axiosInstance.post("/party", formData);
+        const response = await axiosInstance.post("/party", dataWithDate);
         toast.success("Party Created Successfully!");
       }
       reset(); // Reset form fields after submission
@@ -63,6 +69,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
           {defaultValues ? "Update Party" : "Add A Party"}
         </DialogTitle>
       </DialogHeader>
+
       <div className="pt-6">
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -85,6 +92,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
                 </p>
               )}
             </div>
+
             <div>
               <CustomLabel
                 htmlFor={"party_number"}
@@ -104,6 +112,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
                 </p>
               )}
             </div>
+
             <div>
               <CustomLabel htmlFor={"email"} labelName={"Party Email"} />
               <CustomInput
@@ -113,6 +122,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
                 {...register("email")}
               />
             </div>
+
             <div>
               <CustomLabel
                 htmlFor={"billing_address"}
@@ -125,7 +135,32 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
                 {...register("billing_address")}
               />
             </div>
+
+            <div>
+              <CustomLabel
+                htmlFor={"opening_balance"}
+                labelName={"Opening Balance"}
+              />
+              <CustomInput
+                inputType={"number"}
+                inputName={"opening_balance"}
+                inputId={"billing_address"}
+                {...register("opening_balance")}
+              />
+            </div>
+
+            <div className="w-full">
+              <label
+                htmlFor="purchase price"
+                className="block mb-2 text-base text-[#333]"
+              >
+                Balance as of date
+              </label>
+
+              <DatePicker date={date} setDate={setDate} />
+            </div>
           </div>
+
           <div className="mt-6 text-center">
             <button
               type="submit"
