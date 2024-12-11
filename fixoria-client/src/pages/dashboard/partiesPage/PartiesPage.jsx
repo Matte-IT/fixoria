@@ -60,11 +60,11 @@ const PartiesPage = () => {
       ),
     },
     {
-      accessorKey: "phone_number",
+      accessorKey: "party_number",
       header: "Party Phone Number",
       cell: ({ row }) => (
         <div>
-          <span>{row.original.phone_number}</span>
+          <span>{row.original.party_number}</span>
         </div>
       ),
     },
