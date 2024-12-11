@@ -5,8 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import useTanstackQuery from "@/hook/useTanstackQuery";
-import axios from "axios";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
+
 import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -30,7 +30,7 @@ const ProductCategory = ({ setCategory }) => {
 
   const onSubmit = async (formData) => {
     try {
-      const response = await axios.post("/category", {
+      const response = await axiosInstance.post("/category", {
         category_name: formData.category_name,
       });
 

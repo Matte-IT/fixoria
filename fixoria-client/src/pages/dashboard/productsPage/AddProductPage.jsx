@@ -9,22 +9,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useTanstackQuery from "@/hook/useTanstackQuery";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { Camera } from "lucide-react";
 import { useState } from "react";
 
 import DatePicker from "@/components/custom/DatePicker";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "react-toastify";
 
 const AddProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState("");
-  const [status, setStatus] = useState("");
   const [date, setDate] = useState(null);
 
   const [category, setCategory] = useState(null);
@@ -39,26 +38,31 @@ const AddProductPage = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (formData) => {
+  const onSubmit = async (formData) => {
     const finalData = {
-      product_name: formData.productName,
-      product_code: formData.code,
-      product_type: isProduct ? 1 : 2,
-      stock_to_maintain: parseInt(formData.stockToMaintain, 10),
-      product_at_price: parseFloat(formData.productAtPrice),
-      opening_quantity: parseInt(formData.openingQty, 10),
-      purchase_price: parseFloat(formData.purchasePrice),
-      sale_price: parseFloat(formData.salePrice),
-      wholesale_price: parseFloat(formData.wholesalePrice),
-      wholesale_quantity: parseInt(formData.wholesaleQty, 10),
-      unit_id: parseInt(selectedUnit),
+      item_name: formData.productName,
       category_id: category?.category_id,
-      product_as_of_date: date,
-      status,
-      image: selectedImage,
+      type_id: isProduct ? 1 : 2,
+      unit_id: parseInt(selectedUnit),
+      image_path: selectedImage,
+      item_code: formData.code,
+      sale_price: parseFloat(formData.salePrice),
+      purchase_price: parseFloat(formData.purchasePrice),
+      wholesale_price: parseFloat(formData.wholesalePrice),
+      minimum_wholesale_quantity: parseInt(formData.wholesaleQty, 10),
+      opening_quantity: parseInt(formData.openingQty, 10),
+      at_price: parseFloat(formData.productAtPrice),
+      as_of_date: date,
+      min_stock: parseInt(formData.stockToMaintain, 10),
     };
 
-    axios.post("/product", finalData);
+    try {
+      const res = await axiosInstance.post("/product", finalData);
+      toast.success(res.data.message);
+    } catch (res) {
+      toast.error(res.response.data.message);
+    }
+
     reset();
   };
 
@@ -81,6 +85,7 @@ const AddProductPage = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="px-5 py-6 rounded-md bg-white"
         >
+          {/* item type switch */}
           <div className="text-base space-y-2 mb-5">
             <p>Select your product type!</p>
 
@@ -105,6 +110,7 @@ const AddProductPage = () => {
             </div>
           </div>
 
+          {/* all fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
               <label
@@ -201,34 +207,6 @@ const AddProductPage = () => {
                 <Camera />
                 Upload A Image
               </label>
-            </div>
-
-            <div className="flex items-start gap-6">
-              <div>
-                <label
-                  htmlFor="status"
-                  className="block mb-2 text-base text-[#333]"
-                >
-                  Status
-                </label>
-
-                <Select
-                  value={status}
-                  onValueChange={(value) => {
-                    setStatus(value);
-                  }}
-                >
-                  <SelectTrigger className="w-auto focus:ring-0 focus:ring-offset-0">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    <SelectItem value="in stock">In Stock</SelectItem>
-                    <SelectItem value="out of stock">Out Of Stock</SelectItem>
-                    <SelectItem value="low stock">Low Stock</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
 
