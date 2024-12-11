@@ -1,12 +1,12 @@
 const pool = require("../../config/database");
 
 const createProduct = async (req, res) => {
+  // Extract fields from the request body
   const {
     item_name,
     category_id,
     type_id,
     unit_id,
-    image_path,
     item_code,
     sale_price,
     purchase_price,
@@ -18,8 +18,11 @@ const createProduct = async (req, res) => {
     min_stock,
   } = req.body;
 
+  // Handle the uploaded image (if any)
+  const image_path = req.file ? req.file.path : null;
+
   try {
-    // Insert into inventory.item table
+    // Insert into `inventory.item` table
     const itemResult = await pool.query(
       `
       INSERT INTO inventory.item (
@@ -33,7 +36,7 @@ const createProduct = async (req, res) => {
         category_id,
         type_id,
         unit_id,
-        image_path || null,
+        image_path,
         item_code,
         sale_price,
         purchase_price,
@@ -44,7 +47,7 @@ const createProduct = async (req, res) => {
 
     const itemId = itemResult.rows[0].item_id;
 
-    // Skip stock-related operations for services (type_id = 2)
+    // Handle stock-related operations for products (type_id = 1)
     if (type_id === 1) {
       // Validate stock-related fields
       if (
@@ -58,7 +61,7 @@ const createProduct = async (req, res) => {
         });
       }
 
-      // Insert into inventory.stock table
+      // Insert into `inventory.stock` table
       await pool.query(
         `
         INSERT INTO inventory.stock (
@@ -70,6 +73,7 @@ const createProduct = async (req, res) => {
       );
     }
 
+    // Successful response
     res.status(201).json({ message: "Product created successfully" });
   } catch (error) {
     console.error("Error creating product:", error);

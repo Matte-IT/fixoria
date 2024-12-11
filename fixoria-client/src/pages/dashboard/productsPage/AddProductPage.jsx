@@ -38,13 +38,18 @@ const AddProductPage = () => {
     formState: { errors },
   } = useForm();
 
+  const onImageChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedImage(file);
+  };
+
   const onSubmit = async (formData) => {
     const finalData = {
       item_name: formData.productName,
       category_id: category?.category_id,
       type_id: isProduct ? 1 : 2,
       unit_id: parseInt(selectedUnit),
-      image_path: selectedImage,
+      image: selectedImage,
       item_code: formData.code,
       sale_price: parseFloat(formData.salePrice),
       purchase_price: parseFloat(formData.purchasePrice),
@@ -57,13 +62,18 @@ const AddProductPage = () => {
     };
 
     try {
-      const res = await axiosInstance.post("/product", finalData);
+      const res = await axiosInstance.post("/product", finalData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       toast.success(res.data.message);
     } catch (res) {
       toast.error(res.response.data.message);
     }
 
     reset();
+    setSelectedImage(null);
   };
 
   if (isLoading) {
@@ -203,6 +213,7 @@ const AddProductPage = () => {
                   type="file"
                   className="hidden"
                   accept="image/*"
+                  onChange={onImageChange}
                 />
                 <Camera />
                 Upload A Image
@@ -215,16 +226,16 @@ const AddProductPage = () => {
               <TabsList className="grid w-[400px] grid-cols-2">
                 <TabsTrigger
                   value="price"
-                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300 
-        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 
+                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300
+        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600
         data-[state=inactive]:text-gray-500 data-[state=inactive]:border-transparent"
                 >
                   Price
                 </TabsTrigger>
                 <TabsTrigger
                   value="stock"
-                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300 
-        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 
+                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300
+        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600
         data-[state=inactive]:text-gray-500 data-[state=inactive]:border-transparent"
                 >
                   Stock
@@ -234,8 +245,8 @@ const AddProductPage = () => {
               <TabsList className="w-[200px]">
                 <TabsTrigger
                   value="price"
-                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300 
-        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600 
+                  className="w-full px-4 py-2 text-center border-b-2 transition-colors duration-300
+        data-[state=active]:text-blue-600 data-[state=active]:border-blue-600
         data-[state=inactive]:text-gray-500 data-[state=inactive]:border-transparent"
                 >
                   Price
