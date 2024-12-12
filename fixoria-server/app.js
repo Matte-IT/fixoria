@@ -16,26 +16,17 @@ app.use(
   })
 );
 
-// Router
-const categoryRouter = require("./routes/categoryRoutes");
-const unitRouter = require("./routes/unitRoutes");
-const productRouter = require("./routes/productRoutes");
-const partyRouter = require("./routes/partyRoutes");
-
-// Category Route
-app.use("/api/category", categoryRouter);
-
-// Unit Route
-app.use("/api/unit", unitRouter);
-
-// product
-app.use("/api/product", productRouter);
-
-// Party Routes
-app.use("/api/party", partyRouter);
-
+// root route
 app.get("/api", (req, res) => {
   res.send("Welcome To Fixoria server!");
+});
+
+// all routes
+app.use(require("./routes"));
+
+// error handler
+app.use((req, res) => {
+  res.status(404).send("Route not found!");
 });
 
 app.listen(port, () => {

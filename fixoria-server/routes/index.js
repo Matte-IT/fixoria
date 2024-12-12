@@ -1,0 +1,25 @@
+const router = require("express").Router();
+
+// Routers
+const categoryRouter = require("./categoryRoutes");
+const unitRouter = require("./unitRoutes");
+const productRouter = require("./productRoutes");
+const partyRouter = require("./partyRoutes");
+const purchaseRouter = require("./purchaseRoutes");
+
+// Category Route
+router.use("/api/category", categoryRouter);
+
+// Unit Route
+router.use("/api/unit", unitRouter);
+
+// product
+router.use("/api/product", productRouter);
+
+// Party Routes
+router.use("/api/party", partyRouter);
+
+// purchase routes
+router.use("/api/purchase", purchaseRouter);
+
+module.exports = router;
