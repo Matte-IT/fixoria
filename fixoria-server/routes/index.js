@@ -6,6 +6,7 @@ const unitRouter = require("./unitRoutes");
 const productRouter = require("./productRoutes");
 const partyRouter = require("./partyRoutes");
 const purchaseRouter = require("./purchaseRoutes");
+const salesRouter = require("./saleRoutes");
 
 // Category Route
 router.use("/api/category", categoryRouter);
@@ -21,5 +22,8 @@ router.use("/api/party", partyRouter);
 
 // purchase routes
 router.use("/api/purchase", purchaseRouter);
+
+// sales routes
+router.use("/api/sales", salesRouter);
 
 module.exports = router;
