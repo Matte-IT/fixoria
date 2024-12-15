@@ -16,6 +16,7 @@ import {
   Settings,
   ShoppingBag,
   Users,
+  ShoppingBasket,
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import Logo from "../../assets/dashboard/logo.png";
@@ -67,6 +68,15 @@ const Sidebar = ({ extraClass }) => {
             <DropDownNavLink dropDownIcon={BadgeDollarSign} dropDownName="Sale">
               <ul className="relative after:absolute after:content-[''] after:h-full after:w-[2px] after:bg-gray-300 after:top-0 after:-left-3">
                 <DropDownLink pageLink="/sale" pageName="Sale Invoice" />
+              </ul>
+            </DropDownNavLink>
+
+            <DropDownNavLink
+              dropDownIcon={ShoppingBasket}
+              dropDownName="Purchase"
+            >
+              <ul className="relative after:absolute after:content-[''] after:h-full after:w-[2px] after:bg-gray-300 after:top-0 after:-left-3">
+                <DropDownLink pageLink="/purchase" pageName="Purchase Bills" />
               </ul>
             </DropDownNavLink>
 
