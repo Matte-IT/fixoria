@@ -684,11 +684,11 @@ const AddSalePage = () => {
                   <input
                     name="grand_total"
                     type="number"
-                    value={
+                    value={(
                       totals.amount -
                       (parseFloat(tabsData[activeTab].discountAmount) || 0) +
                       (parseFloat(tabsData[activeTab].tax_amount) || 0)
-                    }
+                    ).toFixed(2)}
                     readOnly
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-full"
                   />
