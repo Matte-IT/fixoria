@@ -19,10 +19,11 @@ import {
 } from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
-import Card from "./Card";
 import { ChartNoAxesColumn, Equal, Plus } from "lucide-react";
-import DownloadData from "./DowloadData";
-import PrintData from "./PrintData";
+
+import StatCard from "@/components/custom/shared/StatCard";
+import ExcelData from "@/components/custom/shared/ExcelData";
+import PrintData from "@/components/custom/shared/PrintData";
 
 const options = {
   timeRanges: [
@@ -117,7 +118,7 @@ export function SalePageHeader({ setView, data }) {
             <ChartNoAxesColumn onClick={() => setView("graph")} />
           </div>
 
-          <DownloadData data={data} />
+          <ExcelData data={data} />
 
           <div title="Print">
             <PrintData />
@@ -126,11 +127,11 @@ export function SalePageHeader({ setView, data }) {
       </div>
 
       <div className="flex gap-3 items-center">
-        <Card title="Paid" price="400$" bgColor={"bg-blue-200"} />
+        <StatCard title="Paid" price="400$" bgColor={"bg-blue-200"} />
         <Plus />
-        <Card title="Unpaid" price="400$" bgColor={"bg-blue-300"} />
+        <StatCard title="Unpaid" price="400$" bgColor={"bg-blue-300"} />
         <Equal />
-        <Card title="Total" price="500$" bgColor={"bg-purple-300"} />
+        <StatCard title="Total" price="500$" bgColor={"bg-purple-300"} />
       </div>
     </div>
   );
