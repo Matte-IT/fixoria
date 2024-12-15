@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
-import { Camera, Plus, StickyNote, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -34,8 +34,8 @@ const AddSalePage = () => {
     1: {
       date: new Date(),
       rows: [
-        { id: 1, item: "", quantity: "", unit: "", price: "", total: "" },
-        { id: 2, item: "", quantity: "", price: "", unit: "", total: "" },
+        { id: 1, item: "", quantity: "", unit_id: "", price: "", total: "" },
+        { id: 2, item: "", quantity: "", unit_id: "", price: "", total: "" },
       ],
       party: "",
       notes: "",
@@ -124,19 +124,13 @@ const AddSalePage = () => {
   const { data, isLoading, error } = useTanstackQuery("/party");
 
   const {
-    data: units,
-    isLoading: unitsLoading,
-    error: unitsError,
-  } = useTanstackQuery("/unit");
-
-  const {
     data: items,
     isLoading: itemsLoading,
     error: itemsError,
   } = useTanstackQuery("/product/all");
 
-  if (isLoading || unitsLoading || itemsLoading) return <Loading />;
-  if (error || unitsError || itemsError) return <p>Error</p>;
+  if (isLoading || itemsLoading) return <Loading />;
+  if (error || itemsError) return <p>Error</p>;
 
   const addNewTab = () => {
     if (tabs.length < 5) {
@@ -152,8 +146,8 @@ const AddSalePage = () => {
         [newId]: {
           date: new Date(),
           rows: [
-            { id: 1, item: "", quantity: "", unit: "", price: "", total: "" },
-            { id: 2, item: "", quantity: "", price: "", unit: "", total: "" },
+            { id: 1, item: "", quantity: "", unit_id: "", price: "", total: "" },
+            { id: 2, item: "", quantity: "", unit_id: "", price: "", total: "" },
           ],
           party: "",
           notes: "",
@@ -194,7 +188,7 @@ const AddSalePage = () => {
     const newId = Math.max(...currentRows.map((row) => row.id)) + 1;
     const newRows = [
       ...currentRows,
-      { id: newId, item: "", quantity: "", unit: "", price: "", total: "" },
+      { id: newId, item: "", quantity: "", unit_id: "", price: "", total: "" },
     ];
 
     setTabsData((prev) => ({
@@ -228,15 +222,19 @@ const AddSalePage = () => {
       if (row.id === id) {
         const updates = { [field]: value };
 
-        if (field === "quantity" || field === "price") {
-          const quantity =
-            field === "quantity"
-              ? parseFloat(value) || 0
-              : parseFloat(row.quantity) || 0;
-          const price =
-            field === "price"
-              ? parseFloat(value) || 0
-              : parseFloat(row.price) || 0;
+        if (field === "quantity") {
+          const quantity = parseFloat(value) || 0;
+          if (quantity < 1) {
+            toast.error("Quantity cannot be less than 1");
+            updates.quantity = "1";
+          }
+          const price = parseFloat(row.price) || 0;
+          updates.total = (quantity * price).toFixed(2);
+        }
+
+        if (field === "price") {
+          const price = parseFloat(value) || 0;
+          const quantity = parseFloat(row.quantity) || 1;
           updates.total = (quantity * price).toFixed(2);
         }
 
@@ -291,6 +289,67 @@ const AddSalePage = () => {
     reset();
   };
 
+  // Add these handler functions for two-way calculations
+  const handleDiscountPercentageChange = (value) => {
+    const percentage = parseFloat(value) || 0;
+    const totalAmount = totals.amount;
+    const discountAmount = ((percentage * totalAmount) / 100).toFixed(2);
+    
+    setDiscountPercentage(value);
+    setTabsData(prev => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        discountAmount: discountAmount
+      }
+    }));
+  };
+
+  const handleDiscountAmountChange = (value) => {
+    const discountAmount = parseFloat(value) || 0;
+    const totalAmount = totals.amount;
+    const percentage = totalAmount > 0 ? ((discountAmount / totalAmount) * 100).toFixed(2) : "0";
+    
+    setDiscountPercentage(percentage);
+    setTabsData(prev => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        discountAmount: value
+      }
+    }));
+  };
+
+  const handleTaxPercentageChange = (value) => {
+    const percentage = parseFloat(value) || 0;
+    const totalAmount = totals.amount;
+    const taxAmount = ((percentage * totalAmount) / 100).toFixed(2);
+    
+    setTaxPercentage(value);
+    setTabsData(prev => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        tax_amount: taxAmount
+      }
+    }));
+  };
+
+  const handleTaxAmountChange = (value) => {
+    const taxAmount = parseFloat(value) || 0;
+    const totalAmount = totals.amount;
+    const percentage = totalAmount > 0 ? ((taxAmount / totalAmount) * 100).toFixed(2) : "0";
+    
+    setTaxPercentage(percentage);
+    setTabsData(prev => ({
+      ...prev,
+      [activeTab]: {
+        ...prev[activeTab],
+        tax_amount: value
+      }
+    }));
+  };
+
   return (
     <div>
       <PageTitle title="Add Sale" />
@@ -334,22 +393,42 @@ const AddSalePage = () => {
         <div key={tab.id} className={activeTab === tab.id ? "block" : "hidden"}>
           <div className="p-2 bg-white rounded-md">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="flex justify-between">
+              <div className="flex items-start gap-4">
                 <div>
+                  <label className="text-base w-[120px]">Invoice Date</label>
+                  <div className="w-auto mt-2">
+                    <DatePicker
+                      date={tabsData[activeTab].date}
+                      setDate={(newDate) => {
+                        setTabsData((prev) => ({
+                          ...prev,
+                          [activeTab]: { ...prev[activeTab], date: newDate },
+                        }));
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="shrink-0">
+                  <div className="mb-2">
+                    <label className="text-base">Select A Party</label>
+                  </div>
+
                   <Select
+                    className="text-base"
                     name="party_id"
                     onValueChange={(value) => {
                       setTabsData((prev) => ({
                         ...prev,
                         [activeTab]: {
                           ...prev[activeTab],
-                          party: value, // This will update the party value in the state
+                          party: value,
                         },
                       }));
                     }}
                   >
                     <SelectTrigger className="w-auto focus:ring-offset-0 focus:ring-0 text-base">
-                      <SelectValue placeholder="Select Party" />
+                      <SelectValue placeholder="Select A Party" />
                     </SelectTrigger>
                     <SelectContent>
                       {data.map((party) => (
@@ -363,59 +442,27 @@ const AddSalePage = () => {
                       ))}
                     </SelectContent>
                   </Select>
-
-                  <div className="mt-4">
-                    <textarea
-                      className="border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA] w-[400px]"
-                      placeholder="Notes"
-                      value={tabsData[activeTab].notes}
-                      onChange={(e) => {
-                        setTabsData((prev) => ({
-                          ...prev,
-                          [activeTab]: {
-                            ...prev[activeTab],
-                            notes: e.target.value,
-                          },
-                        }));
-                      }}
-                    ></textarea>
-                  </div>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <label
-                      htmlFor="invoice_number"
-                      className="text-base w-[120px]"
-                    >
-                      Invoice Number
-                    </label>
-                    <input
-                      id="invoice_number"
-                      placeholder="Ex. 2"
-                      type="text"
-                      className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md"
-                    />
+
+                <div className="w-full">
+                  <div className="mb-2">
+                    <label className="text-base">Add Some Notes</label>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-4">
-                    <label
-                      htmlFor="invoice_number"
-                      className="text-base w-[120px]"
-                    >
-                      Invoice Date
-                    </label>
-                    <div className="w-[230px]">
-                      <DatePicker
-                        date={tabsData[activeTab].date}
-                        setDate={(newDate) => {
-                          setTabsData((prev) => ({
-                            ...prev,
-                            [activeTab]: { ...prev[activeTab], date: newDate },
-                          }));
-                        }}
-                      />
-                    </div>
-                  </div>
+                  <textarea
+                    className="border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA] w-full"
+                    placeholder="Notes"
+                    value={tabsData[activeTab].notes}
+                    onChange={(e) => {
+                      setTabsData((prev) => ({
+                        ...prev,
+                        [activeTab]: {
+                          ...prev[activeTab],
+                          notes: e.target.value,
+                        },
+                      }));
+                    }}
+                  ></textarea>
                 </div>
               </div>
 
@@ -423,20 +470,170 @@ const AddSalePage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-100">
-                      <TableHead>#</TableHead>
                       <TableHead className="w-[400px]">ITEM</TableHead>
                       <TableHead className="w-[140px]">QTY</TableHead>
                       <TableHead>UNIT</TableHead>
                       <TableHead>PRICE/UNIT</TableHead>
                       <TableHead>AMOUNT</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {tabsData[activeTab].rows.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell className="p-1">
-                          <div className="flex items-center gap-2 text-base">
-                            <div className="span w-[10px]">{row.id}</div>
+                          <ReactSelect
+                            value={row.item ? {
+                              value: parseInt(row.item),
+                              label: items.find(item => item.item_id === parseInt(row.item))?.item_name
+                            } : null}
+                            onChange={(selected) => {
+                              if (selected) {
+                                const selectedItem = items.find(item => item.item_id === selected.value);
+                                
+                                setTabsData(prev => ({
+                                  ...prev,
+                                  [activeTab]: {
+                                    ...prev[activeTab],
+                                    rows: prev[activeTab].rows.map(r => {
+                                      if (r.id === row.id) {
+                                        const defaultQuantity = "1";
+                                        const total = (parseFloat(defaultQuantity) * parseFloat(selectedItem.sale_price)).toFixed(2);
+                                        
+                                        return {
+                                          ...r,
+                                          item: selected.value,
+                                          quantity: defaultQuantity,
+                                          unit_id: selectedItem.unit_id,
+                                          price: selectedItem.sale_price,
+                                          total: total
+                                        };
+                                      }
+                                      return r;
+                                    })
+                                  }
+                                }));
+                              } else {
+                                setTabsData(prev => ({
+                                  ...prev,
+                                  [activeTab]: {
+                                    ...prev[activeTab],
+                                    rows: prev[activeTab].rows.map(r => {
+                                      if (r.id === row.id) {
+                                        return {
+                                          ...r,
+                                          item: "",
+                                          quantity: "",
+                                          unit_id: "",
+                                          price: "",
+                                          total: ""
+                                        };
+                                      }
+                                      return r;
+                                    })
+                                  }
+                                }));
+                              }
+                            }}
+                            options={items.map(item => ({
+                              value: item.item_id,
+                              label: item.item_name
+                            }))}
+                            placeholder="Select Item"
+                            isClearable
+                            isSearchable
+                          />
+                        </TableCell>
+
+                        <TableCell className="p-1">
+                          <input
+                            type="number"
+                            min="1"
+                            value={row.quantity}
+                            onChange={(e) => {
+                              const newQuantity = parseFloat(e.target.value);
+                              
+                              if (newQuantity < 1) {
+                                toast.error("Quantity cannot be less than 1");
+                                // Set quantity to 1 and recalculate total
+                                setTabsData(prev => ({
+                                  ...prev,
+                                  [activeTab]: {
+                                    ...prev[activeTab],
+                                    rows: prev[activeTab].rows.map(r => {
+                                      if (r.id === row.id) {
+                                        return {
+                                          ...r,
+                                          quantity: "1",
+                                          total: (1 * parseFloat(r.price)).toFixed(2)
+                                        };
+                                      }
+                                      return r;
+                                    })
+                                  }
+                                }));
+                              } else {
+                                // Update quantity and recalculate total
+                                setTabsData(prev => ({
+                                  ...prev,
+                                  [activeTab]: {
+                                    ...prev[activeTab],
+                                    rows: prev[activeTab].rows.map(r => {
+                                      if (r.id === row.id) {
+                                        return {
+                                          ...r,
+                                          quantity: e.target.value,
+                                          total: (parseFloat(e.target.value) * parseFloat(r.price)).toFixed(2)
+                                        };
+                                      }
+                                      return r;
+                                    })
+                                  }
+                                }));
+                              }
+                            }}
+                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
+                          />
+                        </TableCell>
+
+                        <TableCell className="p-1">
+                          <input 
+                            type="text" 
+                            readOnly 
+                            value={row.unit_id || ""} 
+                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
+                          />
+                        </TableCell>
+
+                        <TableCell className="p-1">
+                          {/* Selected Items sale_price and the input will be read only */}
+                          <input
+                            type="number"
+                            value={
+                              row.price ||
+                              items.find(
+                                (item) => item.item_id === parseInt(row.item)
+                              )?.sale_price ||
+                              ""
+                            }
+                            readOnly
+                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
+                          />
+                        </TableCell>
+
+                        <TableCell className="p-1">
+                          <input
+                            type="text"
+                            name="total"
+                            value={row.total || ""}
+                            readOnly
+                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
+                          />
+                        </TableCell>
+
+                        <TableCell className="p-1">
+                          <div className="flex items-center justify-center text-base">
+                            <div className="span w-[10px] hidden">{row.id}</div>
                             {tabsData[activeTab].rows.length > 1 && (
                               <button
                                 type="button"
@@ -448,104 +645,9 @@ const AddSalePage = () => {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="p-1">
-                          <ReactSelect
-                            value={
-                              items.find(
-                                (item) => item.item_id === parseInt(row.item)
-                              )
-                                ? {
-                                    value: row.item,
-                                    label: items.find(
-                                      (item) =>
-                                        item.item_id === parseInt(row.item)
-                                    ).item_name,
-                                  }
-                                : null
-                            }
-                            onChange={(selected) => {
-                              updateRow(
-                                row.id,
-                                "item",
-                                selected ? selected.value : ""
-                              );
-                            }}
-                            options={items.map((item) => ({
-                              value: item.item_id,
-                              label: item.item_name,
-                            }))}
-                            placeholder="Select Item"
-                            isClearable
-                            isSearchable
-                            className="text-base"
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                backgroundColor: "#F9FAFA",
-                                borderColor: "#9CA3AF",
-                                "&:hover": {
-                                  borderColor: "#6B7280",
-                                },
-                              }),
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell className="p-1">
-                          <input
-                            type="number"
-                            value={row.quantity}
-                            onChange={(e) =>
-                              updateRow(row.id, "quantity", e.target.value)
-                            }
-                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
-                          />
-                        </TableCell>
-                        <TableCell className="p-1">
-                          <Select
-                            value={row.unit}
-                            onValueChange={(value) =>
-                              updateRow(row.id, "unit", value)
-                            }
-                          >
-                            <SelectTrigger className="w-auto focus:ring-offset-0 focus:ring-0 text-base">
-                              <SelectValue placeholder="Select Unit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {units.map((unit) => (
-                                <SelectItem
-                                  className="text-base"
-                                  key={unit.unit_id}
-                                  value={`${unit.unit_id}`}
-                                >
-                                  {unit.unit_name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell className="p-1">
-                          <input
-                            type="number"
-                            value={row.price}
-                            onChange={(e) =>
-                              updateRow(row.id, "price", e.target.value)
-                            }
-                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
-                          />
-                        </TableCell>
-                        <TableCell className="p-1">
-                          <input
-                            type="text"
-                            name="total"
-                            value={row.total || ""}
-                            readOnly
-                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
-                          />
-                        </TableCell>
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell className="p-1"></TableCell>
                       <TableCell className="p-1">
                         <div className="flex items-center justify-between">
                           <button
@@ -575,120 +677,64 @@ const AddSalePage = () => {
                 </Table>
               </div>
 
-              <div className="flex justify-between items-center">
-                <div>
-                  <textarea
-                    className="border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA] w-[400px]"
-                    name="notes"
-                    id=""
-                    placeholder="Description"
-                  ></textarea>
-
-                  <div className="mt-2 my-4">
-                    <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer w-[200px]">
-                      <input type="file" className="hidden" accept="image/*" />
-                      <Camera />
-                      Add Image
-                    </label>
-                  </div>
-                  <div>
-                    <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer w-[200px]">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-                      />
-                      <StickyNote />
-                      Add Document
-                    </label>
-                  </div>
+              <div className="flex justify-between items-center gap-4">
+                <div className="flex items-center gap-x-2">
+                  <label className="text-base">Discount</label>
+                  <input
+                    placeholder="%"
+                    type="number"
+                    step="0.01"
+                    value={discountPercentage}
+                    onChange={(e) => handleDiscountPercentageChange(e.target.value)}
+                    className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
+                  />
+                  <span>-</span>
+                  <input
+                    name="discount_amount"
+                    placeholder="$"
+                    type="number"
+                    step="0.01"
+                    value={tabsData[activeTab].discountAmount}
+                    onChange={(e) => handleDiscountAmountChange(e.target.value)}
+                    className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
+                  />
                 </div>
-                <div>
-                  <div>
-                    <div className="flex items-center gap-x-2">
-                      <label className="text-base">Discount</label>
-                      <input
-                        placeholder="%"
-                        type="number"
-                        step="0.01"
-                        value={discountPercentage}
-                        onChange={(e) => {
-                          const percentage = e.target.value;
-                          setDiscountPercentage(percentage);
-                          const calculatedAmount = calculateDiscountAmount(
-                            percentage,
-                            totals.amount
-                          );
-                          setTabsData((prev) => ({
-                            ...prev,
-                            [activeTab]: {
-                              ...prev[activeTab],
-                              discountAmount: calculatedAmount,
-                            },
-                          }));
-                        }}
-                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
-                      />
-                      <span>-</span>
-                      <input
-                        name="discount_amount"
-                        placeholder="$"
-                        type="number"
-                        value={tabsData[activeTab].discountAmount}
-                        readOnly
-                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
-                      />
-                    </div>
-                    <div className="flex items-center gap-x-2 my-3">
-                      <label className="text-base">Tax</label>
-                      <input
-                        placeholder="%"
-                        type="number"
-                        step="0.01"
-                        value={taxPercentage}
-                        onChange={(e) => {
-                          const percentage = e.target.value;
-                          setTaxPercentage(percentage);
-                          const calculatedAmount = calculateTaxAmount(
-                            percentage,
-                            totals.amount
-                          );
-                          setTabsData((prev) => ({
-                            ...prev,
-                            [activeTab]: {
-                              ...prev[activeTab],
-                              tax_amount: calculatedAmount,
-                            },
-                          }));
-                        }}
-                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
-                      />
-                      <span>+</span>
-                      <input
-                        name="tax_amount"
-                        placeholder="$"
-                        type="number"
-                        value={tabsData[activeTab].tax_amount}
-                        readOnly
-                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
-                      />
-                    </div>
-                    <div className="flex items-center gap-x-2">
-                      <label className="text-base">Total</label>
-                      <input
-                        name="grand_total"
-                        type="number"
-                        value={
-                          totals.amount -
-                          (parseFloat(tabsData[activeTab].discountAmount) ||
-                            0) +
-                          (parseFloat(tabsData[activeTab].tax_amount) || 0)
-                        }
-                        readOnly
-                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-full"
-                      />
-                    </div>
-                  </div>
+
+                <div className="flex items-center gap-x-2">
+                  <label className="text-base">Tax</label>
+                  <input
+                    placeholder="%"
+                    type="number"
+                    step="0.01"
+                    value={taxPercentage}
+                    onChange={(e) => handleTaxPercentageChange(e.target.value)}
+                    className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
+                  />
+                  <span>+</span>
+                  <input
+                    name="tax_amount"
+                    placeholder="$"
+                    type="number"
+                    step="0.01"
+                    value={tabsData[activeTab].tax_amount}
+                    onChange={(e) => handleTaxAmountChange(e.target.value)}
+                    className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
+                  />
+                </div>
+
+                <div className="flex items-center gap-x-2 w-full">
+                  <label className="text-base shrink-0">Grand Total</label>
+                  <input
+                    name="grand_total"
+                    type="number"
+                    value={
+                      totals.amount -
+                      (parseFloat(tabsData[activeTab].discountAmount) || 0) +
+                      (parseFloat(tabsData[activeTab].tax_amount) || 0)
+                    }
+                    readOnly
+                    className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-full"
+                  />
                 </div>
               </div>
 
