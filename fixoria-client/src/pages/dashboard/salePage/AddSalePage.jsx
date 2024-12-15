@@ -57,46 +57,13 @@ const AddSalePage = () => {
     },
   });
 
-  const [discountPercentage, setDiscountPercentage] = useState("");
   const [totals, setTotals] = useState({ quantity: 0, amount: 0 });
-  const [taxPercentage, setTaxPercentage] = useState("");
 
   // Calculate totals whenever rows change
   useEffect(() => {
     const newTotals = calculateTotals();
     setTotals(newTotals);
   }, [tabsData, activeTab]);
-
-  // Discount calculation effect
-  useEffect(() => {
-    if (discountPercentage) {
-      const newDiscountAmount = calculateDiscountAmount(
-        discountPercentage,
-        totals.amount
-      );
-      setTabsData((prev) => ({
-        ...prev,
-        [activeTab]: {
-          ...prev[activeTab],
-          discountAmount: newDiscountAmount,
-        },
-      }));
-    }
-  }, [totals.amount, discountPercentage, activeTab]);
-
-  // Tax calculation effect
-  useEffect(() => {
-    if (taxPercentage) {
-      const newTaxAmount = calculateTaxAmount(taxPercentage, totals.amount);
-      setTabsData((prev) => ({
-        ...prev,
-        [activeTab]: {
-          ...prev[activeTab],
-          tax_amount: newTaxAmount,
-        },
-      }));
-    }
-  }, [totals.amount, taxPercentage, activeTab]);
 
   const calculateTotals = () => {
     const currentRows = tabsData[activeTab].rows;
@@ -107,18 +74,6 @@ const AddSalePage = () => {
       }),
       { quantity: 0, amount: 0 }
     );
-  };
-
-  const calculateDiscountAmount = (percentage, totalAmount) => {
-    const discountDecimal = parseFloat(percentage) / 100;
-    const discountAmount = totalAmount * discountDecimal;
-    return discountAmount.toFixed(2);
-  };
-
-  const calculateTaxAmount = (percentage, totalAmount) => {
-    const taxDecimal = parseFloat(percentage) / 100;
-    const taxAmount = totalAmount * taxDecimal;
-    return taxAmount.toFixed(2);
   };
 
   const { data, isLoading, error } = useTanstackQuery("/party");
@@ -140,19 +95,22 @@ const AddSalePage = () => {
         title: `Sale #${newId}`,
       };
       setTabs([...tabs, newTab]);
-      // Initialize state for the new tab
+      
+      // Initialize new tab with empty values
       setTabsData((prev) => ({
         ...prev,
         [newId]: {
           date: new Date(),
           rows: [
-            { id: 1, item: "", quantity: "", unit_id: "", price: "", total: "" },
-            { id: 2, item: "", quantity: "", unit_id: "", price: "", total: "" },
+            { id: 1, item: "", quantity: "", unit: "", price: "", total: "" },
+            { id: 2, item: "", quantity: "", price: "", unit: "", total: "" },
           ],
           party: "",
           notes: "",
-          discountAmount: "",
-          tax_amount: "",
+          discountAmount: "",  // Empty discount amount
+          discountPercentage: "",  // Empty discount percentage
+          tax_amount: "",  // Empty tax amount
+          taxPercentage: "",  // Empty tax percentage
         },
       }));
       setActiveTab(newId);
@@ -289,63 +247,36 @@ const AddSalePage = () => {
     reset();
   };
 
-  // Add these handler functions for two-way calculations
+  // Discount percentage change handler
   const handleDiscountPercentageChange = (value) => {
     const percentage = parseFloat(value) || 0;
     const totalAmount = totals.amount;
     const discountAmount = ((percentage * totalAmount) / 100).toFixed(2);
     
-    setDiscountPercentage(value);
+    // Update both percentage and amount for current tab only
     setTabsData(prev => ({
       ...prev,
       [activeTab]: {
         ...prev[activeTab],
-        discountAmount: discountAmount
+        discountAmount: discountAmount,
+        discountPercentage: value  // Store percentage in tabsData
       }
     }));
   };
 
-  const handleDiscountAmountChange = (value) => {
-    const discountAmount = parseFloat(value) || 0;
-    const totalAmount = totals.amount;
-    const percentage = totalAmount > 0 ? ((discountAmount / totalAmount) * 100).toFixed(2) : "0";
-    
-    setDiscountPercentage(percentage);
-    setTabsData(prev => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        discountAmount: value
-      }
-    }));
-  };
-
+  // Tax percentage change handler
   const handleTaxPercentageChange = (value) => {
     const percentage = parseFloat(value) || 0;
     const totalAmount = totals.amount;
     const taxAmount = ((percentage * totalAmount) / 100).toFixed(2);
     
-    setTaxPercentage(value);
+    // Update both percentage and amount for current tab only
     setTabsData(prev => ({
       ...prev,
       [activeTab]: {
         ...prev[activeTab],
-        tax_amount: taxAmount
-      }
-    }));
-  };
-
-  const handleTaxAmountChange = (value) => {
-    const taxAmount = parseFloat(value) || 0;
-    const totalAmount = totals.amount;
-    const percentage = totalAmount > 0 ? ((taxAmount / totalAmount) * 100).toFixed(2) : "0";
-    
-    setTaxPercentage(percentage);
-    setTabsData(prev => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        tax_amount: value
+        tax_amount: taxAmount,
+        taxPercentage: value  // Store percentage in tabsData
       }
     }));
   };
@@ -684,7 +615,7 @@ const AddSalePage = () => {
                     placeholder="%"
                     type="number"
                     step="0.01"
-                    value={discountPercentage}
+                    value={tabsData[activeTab].discountPercentage || ""}
                     onChange={(e) => handleDiscountPercentageChange(e.target.value)}
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                   />
@@ -695,7 +626,20 @@ const AddSalePage = () => {
                     type="number"
                     step="0.01"
                     value={tabsData[activeTab].discountAmount}
-                    onChange={(e) => handleDiscountAmountChange(e.target.value)}
+                    onChange={(e) => {
+                      const discountAmount = parseFloat(e.target.value) || 0;
+                      const totalAmount = totals.amount;
+                      const percentage = totalAmount > 0 ? ((discountAmount / totalAmount) * 100).toFixed(2) : "0";
+                      
+                      setTabsData(prev => ({
+                        ...prev,
+                        [activeTab]: {
+                          ...prev[activeTab],
+                          discountAmount: e.target.value,
+                          discountPercentage: percentage
+                        }
+                      }));
+                    }}
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                   />
                 </div>
@@ -706,7 +650,7 @@ const AddSalePage = () => {
                     placeholder="%"
                     type="number"
                     step="0.01"
-                    value={taxPercentage}
+                    value={tabsData[activeTab].taxPercentage || ""}
                     onChange={(e) => handleTaxPercentageChange(e.target.value)}
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                   />
@@ -717,7 +661,20 @@ const AddSalePage = () => {
                     type="number"
                     step="0.01"
                     value={tabsData[activeTab].tax_amount}
-                    onChange={(e) => handleTaxAmountChange(e.target.value)}
+                    onChange={(e) => {
+                      const taxAmount = parseFloat(e.target.value) || 0;
+                      const totalAmount = totals.amount;
+                      const percentage = totalAmount > 0 ? ((taxAmount / totalAmount) * 100).toFixed(2) : "0";
+                      
+                      setTabsData(prev => ({
+                        ...prev,
+                        [activeTab]: {
+                          ...prev[activeTab],
+                          tax_amount: e.target.value,
+                          taxPercentage: percentage
+                        }
+                      }));
+                    }}
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                   />
                 </div>
