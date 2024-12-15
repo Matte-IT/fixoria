@@ -77,6 +77,7 @@ const AddSalePage = () => {
   };
 
   const { data, isLoading, error } = useTanstackQuery("/party");
+  const { data: units } = useTanstackQuery("/unit");
 
   const {
     data: items,
@@ -95,7 +96,7 @@ const AddSalePage = () => {
         title: `Sale #${newId}`,
       };
       setTabs([...tabs, newTab]);
-      
+
       // Initialize new tab with empty values
       setTabsData((prev) => ({
         ...prev,
@@ -107,10 +108,10 @@ const AddSalePage = () => {
           ],
           party: "",
           notes: "",
-          discountAmount: "",  // Empty discount amount
-          discountPercentage: "",  // Empty discount percentage
-          tax_amount: "",  // Empty tax amount
-          taxPercentage: "",  // Empty tax percentage
+          discountAmount: "", // Empty discount amount
+          discountPercentage: "", // Empty discount percentage
+          tax_amount: "", // Empty tax amount
+          taxPercentage: "", // Empty tax percentage
         },
       }));
       setActiveTab(newId);
@@ -252,15 +253,15 @@ const AddSalePage = () => {
     const percentage = parseFloat(value) || 0;
     const totalAmount = totals.amount;
     const discountAmount = ((percentage * totalAmount) / 100).toFixed(2);
-    
+
     // Update both percentage and amount for current tab only
-    setTabsData(prev => ({
+    setTabsData((prev) => ({
       ...prev,
       [activeTab]: {
         ...prev[activeTab],
         discountAmount: discountAmount,
-        discountPercentage: value  // Store percentage in tabsData
-      }
+        discountPercentage: value, // Store percentage in tabsData
+      },
     }));
   };
 
@@ -269,15 +270,15 @@ const AddSalePage = () => {
     const percentage = parseFloat(value) || 0;
     const totalAmount = totals.amount;
     const taxAmount = ((percentage * totalAmount) / 100).toFixed(2);
-    
+
     // Update both percentage and amount for current tab only
-    setTabsData(prev => ({
+    setTabsData((prev) => ({
       ...prev,
       [activeTab]: {
         ...prev[activeTab],
         tax_amount: taxAmount,
-        taxPercentage: value  // Store percentage in tabsData
-      }
+        taxPercentage: value, // Store percentage in tabsData
+      },
     }));
   };
 
@@ -414,42 +415,54 @@ const AddSalePage = () => {
                       <TableRow key={row.id}>
                         <TableCell className="p-1">
                           <ReactSelect
-                            value={row.item ? {
-                              value: parseInt(row.item),
-                              label: items.find(item => item.item_id === parseInt(row.item))?.item_name
-                            } : null}
+                            value={
+                              row.item
+                                ? {
+                                    value: parseInt(row.item),
+                                    label: items.find(
+                                      (item) =>
+                                        item.item_id === parseInt(row.item)
+                                    )?.item_name,
+                                  }
+                                : null
+                            }
                             onChange={(selected) => {
                               if (selected) {
-                                const selectedItem = items.find(item => item.item_id === selected.value);
-                                
-                                setTabsData(prev => ({
+                                const selectedItem = items.find(
+                                  (item) => item.item_id === selected.value
+                                );
+
+                                setTabsData((prev) => ({
                                   ...prev,
                                   [activeTab]: {
                                     ...prev[activeTab],
-                                    rows: prev[activeTab].rows.map(r => {
+                                    rows: prev[activeTab].rows.map((r) => {
                                       if (r.id === row.id) {
                                         const defaultQuantity = "1";
-                                        const total = (parseFloat(defaultQuantity) * parseFloat(selectedItem.sale_price)).toFixed(2);
-                                        
+                                        const total = (
+                                          parseFloat(defaultQuantity) *
+                                          parseFloat(selectedItem.sale_price)
+                                        ).toFixed(2);
+
                                         return {
                                           ...r,
                                           item: selected.value,
                                           quantity: defaultQuantity,
                                           unit_id: selectedItem.unit_id,
                                           price: selectedItem.sale_price,
-                                          total: total
+                                          total: total,
                                         };
                                       }
                                       return r;
-                                    })
-                                  }
+                                    }),
+                                  },
                                 }));
                               } else {
-                                setTabsData(prev => ({
+                                setTabsData((prev) => ({
                                   ...prev,
                                   [activeTab]: {
                                     ...prev[activeTab],
-                                    rows: prev[activeTab].rows.map(r => {
+                                    rows: prev[activeTab].rows.map((r) => {
                                       if (r.id === row.id) {
                                         return {
                                           ...r,
@@ -457,18 +470,18 @@ const AddSalePage = () => {
                                           quantity: "",
                                           unit_id: "",
                                           price: "",
-                                          total: ""
+                                          total: "",
                                         };
                                       }
                                       return r;
-                                    })
-                                  }
+                                    }),
+                                  },
                                 }));
                               }
                             }}
-                            options={items.map(item => ({
+                            options={items.map((item) => ({
                               value: item.item_id,
-                              label: item.item_name
+                              label: item.item_name,
                             }))}
                             placeholder="Select Item"
                             isClearable
@@ -483,43 +496,48 @@ const AddSalePage = () => {
                             value={row.quantity}
                             onChange={(e) => {
                               const newQuantity = parseFloat(e.target.value);
-                              
+
                               if (newQuantity < 1) {
                                 toast.error("Quantity cannot be less than 1");
                                 // Set quantity to 1 and recalculate total
-                                setTabsData(prev => ({
+                                setTabsData((prev) => ({
                                   ...prev,
                                   [activeTab]: {
                                     ...prev[activeTab],
-                                    rows: prev[activeTab].rows.map(r => {
+                                    rows: prev[activeTab].rows.map((r) => {
                                       if (r.id === row.id) {
                                         return {
                                           ...r,
                                           quantity: "1",
-                                          total: (1 * parseFloat(r.price)).toFixed(2)
+                                          total: (
+                                            1 * parseFloat(r.price)
+                                          ).toFixed(2),
                                         };
                                       }
                                       return r;
-                                    })
-                                  }
+                                    }),
+                                  },
                                 }));
                               } else {
                                 // Update quantity and recalculate total
-                                setTabsData(prev => ({
+                                setTabsData((prev) => ({
                                   ...prev,
                                   [activeTab]: {
                                     ...prev[activeTab],
-                                    rows: prev[activeTab].rows.map(r => {
+                                    rows: prev[activeTab].rows.map((r) => {
                                       if (r.id === row.id) {
                                         return {
                                           ...r,
                                           quantity: e.target.value,
-                                          total: (parseFloat(e.target.value) * parseFloat(r.price)).toFixed(2)
+                                          total: (
+                                            parseFloat(e.target.value) *
+                                            parseFloat(r.price)
+                                          ).toFixed(2),
                                         };
                                       }
                                       return r;
-                                    })
-                                  }
+                                    }),
+                                  },
                                 }));
                               }
                             }}
@@ -528,10 +546,14 @@ const AddSalePage = () => {
                         </TableCell>
 
                         <TableCell className="p-1">
-                          <input 
-                            type="text" 
-                            readOnly 
-                            value={row.unit_id || ""} 
+                          <input
+                            type="text"
+                            readOnly
+                            value={
+                              units?.find(
+                                (unit) => unit.unit_id === parseInt(row.unit_id)
+                              )?.unit_name || ""
+                            }
                             className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
                           />
                         </TableCell>
@@ -616,7 +638,9 @@ const AddSalePage = () => {
                     type="number"
                     step="0.01"
                     value={tabsData[activeTab].discountPercentage || ""}
-                    onChange={(e) => handleDiscountPercentageChange(e.target.value)}
+                    onChange={(e) =>
+                      handleDiscountPercentageChange(e.target.value)
+                    }
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                   />
                   <span>-</span>
@@ -629,15 +653,18 @@ const AddSalePage = () => {
                     onChange={(e) => {
                       const discountAmount = parseFloat(e.target.value) || 0;
                       const totalAmount = totals.amount;
-                      const percentage = totalAmount > 0 ? ((discountAmount / totalAmount) * 100).toFixed(2) : "0";
-                      
-                      setTabsData(prev => ({
+                      const percentage =
+                        totalAmount > 0
+                          ? ((discountAmount / totalAmount) * 100).toFixed(2)
+                          : "0";
+
+                      setTabsData((prev) => ({
                         ...prev,
                         [activeTab]: {
                           ...prev[activeTab],
                           discountAmount: e.target.value,
-                          discountPercentage: percentage
-                        }
+                          discountPercentage: percentage,
+                        },
                       }));
                     }}
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
@@ -664,15 +691,18 @@ const AddSalePage = () => {
                     onChange={(e) => {
                       const taxAmount = parseFloat(e.target.value) || 0;
                       const totalAmount = totals.amount;
-                      const percentage = totalAmount > 0 ? ((taxAmount / totalAmount) * 100).toFixed(2) : "0";
-                      
-                      setTabsData(prev => ({
+                      const percentage =
+                        totalAmount > 0
+                          ? ((taxAmount / totalAmount) * 100).toFixed(2)
+                          : "0";
+
+                      setTabsData((prev) => ({
                         ...prev,
                         [activeTab]: {
                           ...prev[activeTab],
                           tax_amount: e.target.value,
-                          taxPercentage: percentage
-                        }
+                          taxPercentage: percentage,
+                        },
                       }));
                     }}
                     className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
