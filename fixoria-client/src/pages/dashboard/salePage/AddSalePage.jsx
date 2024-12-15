@@ -16,12 +16,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useTanstackQuery from "@/hook/useTanstackQuery";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { Camera, Plus, StickyNote, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 
 const AddSalePage = () => {
+  const navigate = useNavigate();
   const [tabs, setTabs] = useState([{ id: 1, title: "Sale #1" }]);
   const [activeTab, setActiveTab] = useState(1);
 
@@ -30,18 +34,109 @@ const AddSalePage = () => {
     1: {
       date: new Date(),
       rows: [
-        { id: 1, item: "", quantity: "", unit: "", price: "", amount: "" },
-        { id: 2, item: "", quantity: "", price: "", unit: "", amount: "" },
+        { id: 1, item: "", quantity: "", unit: "", price: "", total: "" },
+        { id: 2, item: "", quantity: "", price: "", unit: "", total: "" },
       ],
       party: "",
-      billingAddress: "",
-      invoiceNumber: "",
-      description: "",
-      discount: "",
+      notes: "",
       discountAmount: "",
-      tax: "",
+      tax_amount: "",
     },
   });
+
+  const { register, handleSubmit, setValue, watch, reset } = useForm({
+    defaultValues: {
+      party_id: "",
+      sales_date: new Date(),
+      total_amount: 0,
+      tax_amount: 0,
+      discount_amount: 0,
+      grand_total: 0,
+      notes: "",
+      sales_details: [],
+    },
+  });
+
+  const [discountPercentage, setDiscountPercentage] = useState("");
+  const [totals, setTotals] = useState({ quantity: 0, amount: 0 });
+  const [taxPercentage, setTaxPercentage] = useState("");
+
+  // Calculate totals whenever rows change
+  useEffect(() => {
+    const newTotals = calculateTotals();
+    setTotals(newTotals);
+  }, [tabsData, activeTab]);
+
+  // Discount calculation effect
+  useEffect(() => {
+    if (discountPercentage) {
+      const newDiscountAmount = calculateDiscountAmount(
+        discountPercentage,
+        totals.amount
+      );
+      setTabsData((prev) => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          discountAmount: newDiscountAmount,
+        },
+      }));
+    }
+  }, [totals.amount, discountPercentage, activeTab]);
+
+  // Tax calculation effect
+  useEffect(() => {
+    if (taxPercentage) {
+      const newTaxAmount = calculateTaxAmount(taxPercentage, totals.amount);
+      setTabsData((prev) => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          tax_amount: newTaxAmount,
+        },
+      }));
+    }
+  }, [totals.amount, taxPercentage, activeTab]);
+
+  const calculateTotals = () => {
+    const currentRows = tabsData[activeTab].rows;
+    return currentRows.reduce(
+      (acc, row) => ({
+        quantity: acc.quantity + (parseFloat(row.quantity) || 0),
+        amount: acc.amount + (parseFloat(row.total) || 0),
+      }),
+      { quantity: 0, amount: 0 }
+    );
+  };
+
+  const calculateDiscountAmount = (percentage, totalAmount) => {
+    const discountDecimal = parseFloat(percentage) / 100;
+    const discountAmount = totalAmount * discountDecimal;
+    return discountAmount.toFixed(2);
+  };
+
+  const calculateTaxAmount = (percentage, totalAmount) => {
+    const taxDecimal = parseFloat(percentage) / 100;
+    const taxAmount = totalAmount * taxDecimal;
+    return taxAmount.toFixed(2);
+  };
+
+  const { data, isLoading, error } = useTanstackQuery("/party");
+
+  const {
+    data: units,
+    isLoading: unitsLoading,
+    error: unitsError,
+  } = useTanstackQuery("/unit");
+
+  const {
+    data: items,
+    isLoading: itemsLoading,
+    error: itemsError,
+  } = useTanstackQuery("/product/all");
+
+  if (isLoading || unitsLoading || itemsLoading) return <Loading />;
+  if (error || unitsError || itemsError) return <p>Error</p>;
 
   const addNewTab = () => {
     if (tabs.length < 5) {
@@ -57,16 +152,13 @@ const AddSalePage = () => {
         [newId]: {
           date: new Date(),
           rows: [
-            { id: 1, item: "", quantity: "", unit: "", price: "", amount: "" },
-            { id: 2, item: "", quantity: "", price: "", unit: "", amount: "" },
+            { id: 1, item: "", quantity: "", unit: "", price: "", total: "" },
+            { id: 2, item: "", quantity: "", price: "", unit: "", total: "" },
           ],
           party: "",
-          billingAddress: "",
-          invoiceNumber: "",
-          description: "",
-          discount: "",
+          notes: "",
           discountAmount: "",
-          tax: "",
+          tax_amount: "",
         },
       }));
       setActiveTab(newId);
@@ -102,7 +194,7 @@ const AddSalePage = () => {
     const newId = Math.max(...currentRows.map((row) => row.id)) + 1;
     const newRows = [
       ...currentRows,
-      { id: newId, item: "", quantity: "", unit: "", price: "", amount: "" },
+      { id: newId, item: "", quantity: "", unit: "", price: "", total: "" },
     ];
 
     setTabsData((prev) => ({
@@ -145,7 +237,7 @@ const AddSalePage = () => {
             field === "price"
               ? parseFloat(value) || 0
               : parseFloat(row.price) || 0;
-          updates.amount = (quantity * price).toFixed(2);
+          updates.total = (quantity * price).toFixed(2);
         }
 
         return { ...row, ...updates };
@@ -162,28 +254,42 @@ const AddSalePage = () => {
     }));
   };
 
-  const calculateTotals = () => {
-    const currentRows = tabsData[activeTab].rows;
-    return currentRows.reduce(
-      (acc, row) => ({
-        quantity: acc.quantity + (parseFloat(row.quantity) || 0),
-        amount: acc.amount + (parseFloat(row.amount) || 0),
-      }),
-      { quantity: 0, amount: 0 }
-    );
+  const onSubmit = async (data) => {
+    const currentTab = tabsData[activeTab];
+
+    const saleData = {
+      party_id: parseInt(currentTab.party) || 0,
+      sales_date: currentTab.date,
+      total_amount: totals.amount,
+      tax_amount: parseFloat(currentTab.tax_amount) || 0,
+      discount_amount: parseFloat(currentTab.discountAmount) || 0,
+      grand_total:
+        totals.amount -
+        (parseFloat(currentTab.discountAmount) || 0) +
+        (parseFloat(currentTab.tax_amount) || 0),
+      notes: currentTab.notes,
+      sales_details: currentTab.rows
+        .filter((row) => row.item && row.quantity && row.price)
+        .map((row) => ({
+          item_id: parseInt(row.item) || 0,
+          quantity: parseFloat(row.quantity) || 0,
+          price: parseFloat(row.price) || 0,
+          tax_amount: parseFloat(currentTab.tax_amount) || 0,
+          discount_amount: parseFloat(currentTab.discountAmount) || 0,
+          total: parseFloat(row.total) || 0,
+        })),
+    };
+
+    try {
+      const res = await axiosInstance.post("/sales", saleData);
+      toast.success(res.data.message);
+      navigate("/sale");
+    } catch (res) {
+      toast.error(res.response.data.message);
+    }
+
+    reset();
   };
-
-  const { data, isLoading, error } = useTanstackQuery("/party");
-  const {
-    data: units,
-    isLoading: loading,
-    error: fetchError,
-  } = useTanstackQuery("/unit");
-
-  if (isLoading || loading) return <Loading />;
-  if (error || fetchError) return <p>Error</p>;
-
-  const totals = calculateTotals();
 
   return (
     <div>
@@ -227,10 +333,21 @@ const AddSalePage = () => {
       {tabs.map((tab) => (
         <div key={tab.id} className={activeTab === tab.id ? "block" : "hidden"}>
           <div className="p-2 bg-white rounded-md">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex justify-between">
                 <div>
-                  <Select>
+                  <Select
+                    name="party_id"
+                    onValueChange={(value) => {
+                      setTabsData((prev) => ({
+                        ...prev,
+                        [activeTab]: {
+                          ...prev[activeTab],
+                          party: value, // This will update the party value in the state
+                        },
+                      }));
+                    }}
+                  >
                     <SelectTrigger className="w-auto focus:ring-offset-0 focus:ring-0 text-base">
                       <SelectValue placeholder="Select Party" />
                     </SelectTrigger>
@@ -250,9 +367,17 @@ const AddSalePage = () => {
                   <div className="mt-4">
                     <textarea
                       className="border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA] w-[400px]"
-                      name=""
-                      id=""
-                      placeholder="Billing Address"
+                      placeholder="Notes"
+                      value={tabsData[activeTab].notes}
+                      onChange={(e) => {
+                        setTabsData((prev) => ({
+                          ...prev,
+                          [activeTab]: {
+                            ...prev[activeTab],
+                            notes: e.target.value,
+                          },
+                        }));
+                      }}
                     ></textarea>
                   </div>
                 </div>
@@ -324,13 +449,45 @@ const AddSalePage = () => {
                           </div>
                         </TableCell>
                         <TableCell className="p-1">
-                          <input
-                            type="text"
-                            value={row.item}
-                            onChange={(e) =>
-                              updateRow(row.id, "item", e.target.value)
+                          <ReactSelect
+                            value={
+                              items.find(
+                                (item) => item.item_id === parseInt(row.item)
+                              )
+                                ? {
+                                    value: row.item,
+                                    label: items.find(
+                                      (item) =>
+                                        item.item_id === parseInt(row.item)
+                                    ).item_name,
+                                  }
+                                : null
                             }
-                            className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
+                            onChange={(selected) => {
+                              updateRow(
+                                row.id,
+                                "item",
+                                selected ? selected.value : ""
+                              );
+                            }}
+                            options={items.map((item) => ({
+                              value: item.item_id,
+                              label: item.item_name,
+                            }))}
+                            placeholder="Select Item"
+                            isClearable
+                            isSearchable
+                            className="text-base"
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                backgroundColor: "#F9FAFA",
+                                borderColor: "#9CA3AF",
+                                "&:hover": {
+                                  borderColor: "#6B7280",
+                                },
+                              }),
+                            }}
                           />
                         </TableCell>
                         <TableCell className="p-1">
@@ -379,7 +536,8 @@ const AddSalePage = () => {
                         <TableCell className="p-1">
                           <input
                             type="text"
-                            value={row.amount}
+                            name="total"
+                            value={row.total || ""}
                             readOnly
                             className="w-full border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA]"
                           />
@@ -421,7 +579,7 @@ const AddSalePage = () => {
                 <div>
                   <textarea
                     className="border border-gray-400 p-2 rounded-md outline-none resize-none bg-[#F9FAFA] w-[400px]"
-                    name=""
+                    name="notes"
                     id=""
                     placeholder="Description"
                   ></textarea>
@@ -451,28 +609,82 @@ const AddSalePage = () => {
                       <label className="text-base">Discount</label>
                       <input
                         placeholder="%"
-                        type="text"
+                        type="number"
+                        step="0.01"
+                        value={discountPercentage}
+                        onChange={(e) => {
+                          const percentage = e.target.value;
+                          setDiscountPercentage(percentage);
+                          const calculatedAmount = calculateDiscountAmount(
+                            percentage,
+                            totals.amount
+                          );
+                          setTabsData((prev) => ({
+                            ...prev,
+                            [activeTab]: {
+                              ...prev[activeTab],
+                              discountAmount: calculatedAmount,
+                            },
+                          }));
+                        }}
                         className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                       />
                       <span>-</span>
                       <input
+                        name="discount_amount"
                         placeholder="$"
-                        type="text"
+                        type="number"
+                        value={tabsData[activeTab].discountAmount}
+                        readOnly
                         className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                       />
                     </div>
                     <div className="flex items-center gap-x-2 my-3">
                       <label className="text-base">Tax</label>
                       <input
-                        placeholder="Enter Tax"
-                        type="text"
-                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-full"
+                        placeholder="%"
+                        type="number"
+                        step="0.01"
+                        value={taxPercentage}
+                        onChange={(e) => {
+                          const percentage = e.target.value;
+                          setTaxPercentage(percentage);
+                          const calculatedAmount = calculateTaxAmount(
+                            percentage,
+                            totals.amount
+                          );
+                          setTabsData((prev) => ({
+                            ...prev,
+                            [activeTab]: {
+                              ...prev[activeTab],
+                              tax_amount: calculatedAmount,
+                            },
+                          }));
+                        }}
+                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
+                      />
+                      <span>+</span>
+                      <input
+                        name="tax_amount"
+                        placeholder="$"
+                        type="number"
+                        value={tabsData[activeTab].tax_amount}
+                        readOnly
+                        className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
                       />
                     </div>
                     <div className="flex items-center gap-x-2">
                       <label className="text-base">Total</label>
                       <input
-                        type="text"
+                        name="grand_total"
+                        type="number"
+                        value={
+                          totals.amount -
+                          (parseFloat(tabsData[activeTab].discountAmount) ||
+                            0) +
+                          (parseFloat(tabsData[activeTab].tax_amount) || 0)
+                        }
+                        readOnly
                         className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-full"
                       />
                     </div>
