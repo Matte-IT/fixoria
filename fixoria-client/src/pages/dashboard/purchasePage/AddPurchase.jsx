@@ -441,7 +441,9 @@ export default function AddPurchase() {
                                         const defaultQuantity = "1";
                                         const total = (
                                           parseFloat(defaultQuantity) *
-                                          parseFloat(selectedItem.sale_price)
+                                          parseFloat(
+                                            selectedItem.purchase_price
+                                          )
                                         ).toFixed(2);
 
                                         return {
@@ -449,7 +451,7 @@ export default function AddPurchase() {
                                           item: selected.value,
                                           quantity: defaultQuantity,
                                           unit_id: selectedItem.unit_id,
-                                          price: selectedItem.sale_price,
+                                          price: selectedItem.purchase_price,
                                           total: total,
                                         };
                                       }
@@ -559,14 +561,14 @@ export default function AddPurchase() {
                         </TableCell>
 
                         <TableCell className="p-1">
-                          {/* Selected Items sale_price and the input will be read only */}
+                          {/* Selected Items purchase_price and the input will be read only */}
                           <input
                             type="number"
                             value={
                               row.price ||
                               items.find(
                                 (item) => item.item_id === parseInt(row.item)
-                              )?.sale_price ||
+                              )?.purchase_price ||
                               ""
                             }
                             readOnly

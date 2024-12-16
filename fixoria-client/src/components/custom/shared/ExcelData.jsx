@@ -1,6 +1,5 @@
-import React from "react";
-import * as XLSX from "xlsx";
 import { FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
 
 export default function ExcelData({ data }) {
   const downloadExcel = () => {
@@ -16,7 +15,6 @@ export default function ExcelData({ data }) {
         className="cursor-pointer"
         onClick={() => downloadExcel()}
       />
-      ;
     </div>
   );
 }
