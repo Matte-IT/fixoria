@@ -15,36 +15,51 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import GraphView from "./GraphView";
+import useTanstackQuery from "@/hook/useTanstackQuery";
+import Loading from "@/components/custom/Loading";
 
 const columnHelper = createColumnHelper();
 
 export const columns = [
-  columnHelper.accessor("date", {
+  columnHelper.accessor("sales_date", {
     header: "DATE",
-    cell: (info) => info.getValue(),
+    cell: (info) => {
+      const date = new Date(info.getValue());
+
+      // Format the date into the desired format
+      const formattedDate = date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      // Extract the day from the date
+      const day = date.getDate();
+
+      // Add the correct suffix for the day
+      const suffix =
+        day % 10 === 1 && day !== 11
+          ? "st"
+          : day % 10 === 2 && day !== 12
+          ? "nd"
+          : day % 10 === 3 && day !== 13
+          ? "rd"
+          : "th";
+
+      // Return the formatted date with the suffix
+      return formattedDate.replace(day.toString(), `${day}${suffix}`);
+    },
   }),
-  columnHelper.accessor("invoiceNo", {
+  columnHelper.accessor("sales_id", {
     header: "INVOICE NO.",
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor("partyName", {
+  columnHelper.accessor("party_name", {
     header: "PARTY NAME",
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor("transaction", {
-    header: "TRANSACTION",
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor("paymentType", {
-    header: "PAYMENT TYPE",
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor("amount", {
-    header: "AMOUNT",
-    cell: (info) => info.getValue(),
-  }),
-  columnHelper.accessor("balanceDue", {
-    header: "BALANCE DUE",
+  columnHelper.accessor("grand_total", {
+    header: "Grand Total",
     cell: (info) => info.getValue(),
   }),
   columnHelper.display({
@@ -85,31 +100,33 @@ export const columns = [
   }),
 ];
 
-export const data = [
-  {
-    id: "1",
-    date: "03/12/2024",
-    invoiceNo: 2,
-    partyName: "Jahid",
-    transaction: "Sale",
-    paymentType: "Cash",
-    amount: 500,
-    balanceDue: 200,
-  },
-  {
-    id: "2",
-    date: "02/12/2024",
-    invoiceNo: 1,
-    partyName: "Noman",
-    transaction: "Sale",
-    paymentType: "Check",
-    amount: 200,
-    balanceDue: 100,
-  },
-];
+// export const data = [
+//   {
+//     id: "1",
+//     date: "03/12/2024",
+//     invoiceNo: 2,
+//     partyName: "Jahid",
+//     transaction: "Sale",
+//     paymentType: "Cash",
+//     amount: 500,
+//     balanceDue: 200,
+//   },
+//   {
+//     id: "2",
+//     date: "02/12/2024",
+//     invoiceNo: 1,
+//     partyName: "Noman",
+//     transaction: "Sale",
+//     paymentType: "Check",
+//     amount: 200,
+//     balanceDue: 100,
+//   },
+// ];
 
 const SalePage = () => {
   const [view, setView] = useState("table");
+
+  const { data, isLoading, error } = useTanstackQuery("/sales");
 
   if (view === "graph") {
     return <GraphView setView={setView} />;
@@ -125,9 +142,13 @@ const SalePage = () => {
         <PageName pageName="Sale Invoice" />
       </div>
 
-      <DataTable data={data} columns={columns}>
-        <AddItem itemName={"Add Sale"} link={"/add-sale"} />
-      </DataTable>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <DataTable data={data} columns={columns}>
+          <AddItem itemName={"Add Sale"} link={"/add-sale"} />
+        </DataTable>
+      )}
     </div>
   );
 };
