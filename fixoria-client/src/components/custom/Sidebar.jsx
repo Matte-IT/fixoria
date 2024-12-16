@@ -15,8 +15,8 @@ import {
   Power,
   Settings,
   ShoppingBag,
-  Users,
   ShoppingBasket,
+  Users,
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import Logo from "../../assets/dashboard/logo.png";
@@ -77,6 +77,10 @@ const Sidebar = ({ extraClass }) => {
             >
               <ul className="relative after:absolute after:content-[''] after:h-full after:w-[2px] after:bg-gray-300 after:top-0 after:-left-3">
                 <DropDownLink pageLink="/purchase" pageName="Purchase Bills" />
+                <DropDownLink
+                  pageLink="/purchase-orders"
+                  pageName="Purchase Orders"
+                />
               </ul>
             </DropDownNavLink>
 

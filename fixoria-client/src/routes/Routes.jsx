@@ -12,12 +12,15 @@ import StorePage from "@/pages/dashboard/storePage/StorePage";
 import TransactionPage from "@/pages/dashboard/transactionPage/TransactionPage";
 
 import Purchase from "@/pages/dashboard/purchasePage/Purchase";
+import PurchaseOrders from "@/pages/dashboard/purchasePage/PurchaseOrders";
 import DashboardLayout from "../layouts/DashboardLayout";
 import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
+import AddPurchaseOrder from "@/pages/dashboard/purchasePage/AddPurchaseOrder";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
+import EditPurchaseOrder from "@/pages/dashboard/purchasePage/EditPurchaseOrder";
 import { createBrowserRouter } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -87,6 +90,18 @@ const router = createBrowserRouter([
       {
         path: "/edit-purchase/:id",
         element: <EditPurchase />,
+      },
+      {
+        path: "/purchase-orders",
+        element: <PurchaseOrders />,
+      },
+      {
+        path: "/add-purchase-order",
+        element: <AddPurchaseOrder />,
+      },
+      {
+        path: "/edit-purchase-order/:id",
+        element: <EditPurchaseOrder />,
       },
     ],
   },
