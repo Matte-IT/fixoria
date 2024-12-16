@@ -18,6 +18,7 @@ import ErrorPage from "../pages/errorPage/ErrorPage";
 
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
+import { createBrowserRouter } from "react-router-dom";
 
 const router = createBrowserRouter([
   {
