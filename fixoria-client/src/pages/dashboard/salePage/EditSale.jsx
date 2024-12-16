@@ -20,11 +20,12 @@ import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 
-const AddSalePage = () => {
+export default function EditSale() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [tabs, setTabs] = useState([{ id: 1, title: "Sale #1" }]);
   const [activeTab, setActiveTab] = useState(1);
@@ -175,42 +176,6 @@ const AddSalePage = () => {
     }
   };
 
-  // const updateRow = (id, field, value) => {
-  //   const currentRows = tabsData[activeTab].rows;
-  //   const newRows = currentRows.map((row) => {
-  //     if (row.id === id) {
-  //       const updates = { [field]: value };
-
-  //       if (field === "quantity") {
-  //         const quantity = parseFloat(value) || 0;
-  //         if (quantity < 1) {
-  //           toast.error("Quantity cannot be less than 1");
-  //           updates.quantity = "1";
-  //         }
-  //         const price = parseFloat(row.price) || 0;
-  //         updates.total = (quantity * price).toFixed(2);
-  //       }
-
-  //       if (field === "price") {
-  //         const price = parseFloat(value) || 0;
-  //         const quantity = parseFloat(row.quantity) || 1;
-  //         updates.total = (quantity * price).toFixed(2);
-  //       }
-
-  //       return { ...row, ...updates };
-  //     }
-  //     return row;
-  //   });
-
-  //   setTabsData((prev) => ({
-  //     ...prev,
-  //     [activeTab]: {
-  //       ...prev[activeTab],
-  //       rows: newRows,
-  //     },
-  //   }));
-  // };
-
   const onSubmit = async (data) => {
     const currentTab = tabsData[activeTab];
 
@@ -284,7 +249,7 @@ const AddSalePage = () => {
 
   return (
     <div>
-      <PageTitle title="Add Sale" />
+      <PageTitle title="Edit Sale" />
 
       <div className="mb-4">
         <div className="flex items-center gap-x-4 p-2 border border-gray-300 rounded-md bg-white">
@@ -739,6 +704,4 @@ const AddSalePage = () => {
       ))}
     </div>
   );
-};
-
-export default AddSalePage;
+}

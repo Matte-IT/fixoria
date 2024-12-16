@@ -17,6 +17,8 @@ import Purchase from "@/pages/dashboard/purchasePage/Purchase";
 
 import { createBrowserRouter } from "react-router-dom";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
+import EditSale from "@/pages/dashboard/salePage/EditSale";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -59,6 +61,7 @@ const router = createBrowserRouter([
         path: "/store",
         element: <StorePage />,
       },
+      // sales route
       {
         path: "/sale",
         element: <SalePage />,
@@ -67,6 +70,11 @@ const router = createBrowserRouter([
         path: "/add-sale",
         element: <AddSalePage />,
       },
+      {
+        path: "/edit-sale/:id",
+        element: <EditSale />,
+      },
+      // purchase routes
       {
         path: "/purchase",
         element: <Purchase />,

@@ -17,6 +17,7 @@ import { useState } from "react";
 import GraphView from "./GraphView";
 import useTanstackQuery from "@/hook/useTanstackQuery";
 import Loading from "@/components/custom/Loading";
+import { Link } from "react-router-dom";
 
 const columnHelper = createColumnHelper();
 
@@ -82,14 +83,16 @@ export const columns = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => console.log("Edit", row.original.id)}
-          >
+          <DropdownMenuItem>
             <Edit className="mr-2 h-4 w-4" />
-            <span>Edit</span>
+
+            <Link to={`/edit-sale/${row.original.sales_id}`}>
+              <span>Edit</span>
+            </Link>
           </DropdownMenuItem>
+
           <DropdownMenuItem
-            onClick={() => console.log("Delete", row.original.id)}
+            onClick={() => console.log("Delete", row.original.sales_id)}
           >
             <Trash className="mr-2 h-4 w-4" />
             <span>Delete</span>
@@ -99,29 +102,6 @@ export const columns = [
     ),
   }),
 ];
-
-// export const data = [
-//   {
-//     id: "1",
-//     date: "03/12/2024",
-//     invoiceNo: 2,
-//     partyName: "Jahid",
-//     transaction: "Sale",
-//     paymentType: "Cash",
-//     amount: 500,
-//     balanceDue: 200,
-//   },
-//   {
-//     id: "2",
-//     date: "02/12/2024",
-//     invoiceNo: 1,
-//     partyName: "Noman",
-//     transaction: "Sale",
-//     paymentType: "Check",
-//     amount: 200,
-//     balanceDue: 100,
-//   },
-// ];
 
 const SalePage = () => {
   const [view, setView] = useState("table");
