@@ -5,6 +5,7 @@ import AddProductPage from "@/pages/dashboard/productsPage/AddProductPage";
 import ProductsPage from "@/pages/dashboard/productsPage/ProductsPage";
 
 import AddSalePage from "@/pages/dashboard/salePage/AddSalePage";
+import EditSale from "@/pages/dashboard/salePage/EditSale";
 import SalePage from "@/pages/dashboard/salePage/SalePage";
 import SettingsPage from "@/pages/dashboard/settingsPage/settingsPage";
 import StorePage from "@/pages/dashboard/storePage/StorePage";
@@ -16,13 +17,8 @@ import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
-<<<<<<< HEAD
-import EditSale from "@/pages/dashboard/salePage/EditSale";
-
-=======
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
-import { createBrowserRouter } from "react-router-dom";
->>>>>>> jahid
+
 const router = createBrowserRouter([
   {
     path: "/",
