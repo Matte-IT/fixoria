@@ -10,15 +10,19 @@ import SettingsPage from "@/pages/dashboard/settingsPage/settingsPage";
 import StorePage from "@/pages/dashboard/storePage/StorePage";
 import TransactionPage from "@/pages/dashboard/transactionPage/TransactionPage";
 
+import Purchase from "@/pages/dashboard/purchasePage/Purchase";
 import DashboardLayout from "../layouts/DashboardLayout";
 import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
-import Purchase from "@/pages/dashboard/purchasePage/Purchase";
 
-import { createBrowserRouter } from "react-router-dom";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
+<<<<<<< HEAD
 import EditSale from "@/pages/dashboard/salePage/EditSale";
 
+=======
+import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
+import { createBrowserRouter } from "react-router-dom";
+>>>>>>> jahid
 const router = createBrowserRouter([
   {
     path: "/",
@@ -82,6 +86,10 @@ const router = createBrowserRouter([
       {
         path: "/add-purchase",
         element: <AddPurchase />,
+      },
+      {
+        path: "/edit-purchase/:id",
+        element: <EditPurchase />,
       },
     ],
   },
