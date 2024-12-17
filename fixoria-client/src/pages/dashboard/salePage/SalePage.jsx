@@ -83,16 +83,16 @@ export const columns = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <Edit className="mr-2 h-4 w-4" />
-
-            <Link to={`/edit-sale/${row.original.sales_id}`}>
+          <Link to={`/edit-sale/${row.original.sales_id}`}>
+            <DropdownMenuItem className="cursor-pointer">
+              <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
-            </Link>
-          </DropdownMenuItem>
+            </DropdownMenuItem>
+          </Link>
 
           <DropdownMenuItem
             onClick={() => console.log("Delete", row.original.sales_id)}
+            className="cursor-pointer"
           >
             <Trash className="mr-2 h-4 w-4" />
             <span>Delete</span>

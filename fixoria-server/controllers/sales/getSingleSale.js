@@ -10,15 +10,17 @@ async function getSingleSale(req, res) {
   const client = await pool.connect();
 
   try {
-    // Query to get only editable fields from sales table
+    // Query to get editable fields from the sales table
     const saleQuery = `
       SELECT 
         s.sales_id,
         s.party_id,
         s.sales_date,
-        s.notes
+        s.notes,
+        s.tax_amount,
+        s.discount_amount
       FROM sales.sales s
-      WHERE s.sales_id = $1
+      WHERE s.sales_id = $1 AND s.is_deleted = FALSE
     `;
     const saleResult = await client.query(saleQuery, [id]);
 
@@ -28,7 +30,7 @@ async function getSingleSale(req, res) {
 
     const sale = saleResult.rows[0];
 
-    // Query to get only editable fields from sales_details table, including unit name
+    // Query to get editable fields from sales_details table, including unit name
     const salesDetailsQuery = `
       SELECT 
         sd.sales_detail_id,
@@ -37,8 +39,6 @@ async function getSingleSale(req, res) {
         u.unit_name,
         sd.quantity,
         sd.price,
-        sd.tax_amount,
-        sd.discount_amount,
         sd.total
       FROM sales.sales_details sd
       LEFT JOIN inventory.item i ON sd.item_id = i.item_id
@@ -47,9 +47,10 @@ async function getSingleSale(req, res) {
     `;
     const salesDetailsResult = await client.query(salesDetailsQuery, [id]);
 
+    // Add the sales details to the main sale object
     sale.sales_details = salesDetailsResult.rows;
 
-    // Return only the editable fields
+    // Send the response
     res.status(200).json(sale);
   } catch (error) {
     console.error("Error fetching sale data:", error);

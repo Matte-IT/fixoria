@@ -63,12 +63,19 @@ export default function EditSale() {
     useTanstackQuery("/party");
   const { data: items, isLoading: itemsLoading } =
     useTanstackQuery("/product/all");
+  const { data: units } = useTanstackQuery("/unit");
+
   const { data: saleDetails, isLoading: saleDetailsLoading } = useTanstackQuery(
     `/sales/${id}`
   );
 
   useEffect(() => {
     if (saleDetails) {
+      const totalAmount = saleDetails.sales_details.reduce(
+        (sum, detail) => sum + (parseFloat(detail.total) || 0),
+        0
+      );
+
       setSaleData({
         date: new Date(saleDetails.sales_date),
         rows: saleDetails.sales_details.map((detail) => ({
@@ -81,24 +88,14 @@ export default function EditSale() {
         })),
         party: saleDetails.party_id?.toString() || "",
         notes: saleDetails.notes || "",
-        discountAmount: saleDetails.discount_amount?.toString() || "",
-        tax_amount: saleDetails.tax_amount?.toString() || "",
-        discountPercentage:
-          saleDetails.discount_amount && saleDetails.total_amount
-            ? (
-                (parseFloat(saleDetails.discount_amount) /
-                  parseFloat(saleDetails.total_amount)) *
-                100
-              ).toFixed(2)
-            : "",
-        taxPercentage:
-          saleDetails.tax_amount && saleDetails.total_amount
-            ? (
-                (parseFloat(saleDetails.tax_amount) /
-                  parseFloat(saleDetails.total_amount)) *
-                100
-              ).toFixed(2)
-            : "",
+        discountAmount: saleDetails.discount_amount || "0",
+        tax_amount: saleDetails.tax_amount || "0",
+        discountPercentage: totalAmount > 0
+          ? ((parseFloat(saleDetails.discount_amount) / totalAmount) * 100).toFixed(2)
+          : "0",
+        taxPercentage: totalAmount > 0
+          ? ((parseFloat(saleDetails.tax_amount) / totalAmount) * 100).toFixed(2)
+          : "0",
       });
     }
   }, [saleDetails]);
@@ -294,18 +291,24 @@ export default function EditSale() {
                               (item) => item.item_id === selected.value
                             );
 
+                            const unitName =
+                              units.find(
+                                (unit) => unit.unit_id === selectedItem.unit_id
+                              )?.unit_name || "";
+
                             setSaleData((prev) => ({
                               ...prev,
                               rows: prev.rows.map((r) => {
                                 if (r.id === row.id) {
                                   const total = (
-                                    parseFloat(row.quantity || "1") *
-                                    parseFloat(selectedItem.sale_price)
+                                    1 * parseFloat(selectedItem.sale_price)
                                   ).toFixed(2);
 
                                   return {
                                     ...r,
                                     item: selected.value,
+                                    quantity: "1",
+                                    unit_id: unitName,
                                     price: selectedItem.sale_price,
                                     total: total,
                                   };
@@ -466,7 +469,7 @@ export default function EditSale() {
                 placeholder="%"
                 type="number"
                 step="0.01"
-                value={saleData.discountPercentage || ""}
+                value={saleData.discountPercentage}
                 onChange={(e) => handleDiscountPercentageChange(e.target.value)}
                 className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
               />
@@ -501,7 +504,7 @@ export default function EditSale() {
                 placeholder="%"
                 type="number"
                 step="0.01"
-                value={saleData.taxPercentage || ""}
+                value={saleData.taxPercentage}
                 onChange={(e) => handleTaxPercentageChange(e.target.value)}
                 className="bg-[#F9FAFA] border-0 outline-none p-2 rounded-md w-[80px]"
               />
