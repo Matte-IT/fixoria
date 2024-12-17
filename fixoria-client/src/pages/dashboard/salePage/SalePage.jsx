@@ -53,7 +53,7 @@ export const columns = [
   }),
   columnHelper.accessor("sales_id", {
     header: "INVOICE NO.",
-    cell: (info) => info.getValue(),
+    cell: (info) => `INV-${info.getValue()}`,
   }),
   columnHelper.accessor("party_name", {
     header: "PARTY NAME",

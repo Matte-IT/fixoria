@@ -15,7 +15,7 @@ async function getAllSales(req, res) {
             WHERE 
                 s.is_deleted = FALSE
             ORDER BY 
-                s.sales_date DESC;
+                s.sales_id;
         `;
 
     const result = await pool.query(query);
