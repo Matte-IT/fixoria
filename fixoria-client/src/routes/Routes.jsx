@@ -17,8 +17,10 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 
+import AddExpense from "@/pages/dashboard/purchasePage/AddExpense";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
 import AddPurchaseOrder from "@/pages/dashboard/purchasePage/AddPurchaseOrder";
+import AllExpenses from "@/pages/dashboard/purchasePage/AllExpenses";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
 import EditPurchaseOrder from "@/pages/dashboard/purchasePage/EditPurchaseOrder";
 import { createBrowserRouter } from "react-router-dom";
@@ -103,6 +105,16 @@ const router = createBrowserRouter([
         path: "/edit-purchase-order/:id",
         element: <EditPurchaseOrder />,
       },
+      // Expense Module Starts Here
+      {
+        path: "/expenses",
+        element: <AllExpenses />,
+      },
+      {
+        path: "/add-expense",
+        element: <AddExpense />,
+      },
+      // Expense Module Ends Here
     ],
   },
 ]);
