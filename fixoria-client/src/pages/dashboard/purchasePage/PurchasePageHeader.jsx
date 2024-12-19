@@ -113,10 +113,10 @@ export default function PurchasePageHeader({ data }) {
 
         {/* icons */}
         <div className="flex gap-5">
-          <ExcelData data={data} />
+          <ExcelData data={data} type={"purchase"} />
 
           <div title="Print">
-            <PrintData />
+            <PrintData data={data} type={"purchase"} />
           </div>
         </div>
       </div>

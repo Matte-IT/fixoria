@@ -118,10 +118,10 @@ export function SalePageHeader({ setView, data }) {
             <ChartNoAxesColumn onClick={() => setView("graph")} />
           </div>
 
-          <ExcelData data={data} />
+          <ExcelData data={data} type={"sales"} />
 
           <div title="Print">
-            <PrintData />
+            <PrintData data={data} type="sales" />
           </div>
         </div>
       </div>
