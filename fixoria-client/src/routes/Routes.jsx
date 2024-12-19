@@ -22,6 +22,8 @@ import AddPurchaseOrder from "@/pages/dashboard/purchasePage/AddPurchaseOrder";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
 import EditPurchaseOrder from "@/pages/dashboard/purchasePage/EditPurchaseOrder";
 import { createBrowserRouter } from "react-router-dom";
+import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
+import AddSaleOrder from "@/pages/dashboard/salePage/AddSaleOrder";
 
 const router = createBrowserRouter([
   {
@@ -77,6 +79,14 @@ const router = createBrowserRouter([
       {
         path: "/edit-sale/:id",
         element: <EditSale />,
+      },
+      {
+        path: "/sale-orders",
+        element: <SaleOrders />,
+      },
+      {
+        path: "/add-sale-order",
+        element: <AddSaleOrder />,
       },
       // purchase routes
       {

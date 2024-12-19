@@ -68,6 +68,7 @@ const Sidebar = ({ extraClass }) => {
             <DropDownNavLink dropDownIcon={BadgeDollarSign} dropDownName="Sale">
               <ul className="relative after:absolute after:content-[''] after:h-full after:w-[2px] after:bg-gray-300 after:top-0 after:-left-3">
                 <DropDownLink pageLink="/sale" pageName="Sale Invoice" />
+                <DropDownLink pageLink="/sale-orders" pageName="Sale Orders" />
               </ul>
             </DropDownNavLink>
 

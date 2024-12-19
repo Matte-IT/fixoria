@@ -8,6 +8,7 @@ const partyRouter = require("./partyRoutes");
 const purchaseRouter = require("./purchaseRoutes");
 const purchaseOrderRouter = require("./purchaseOrderRouts");
 const salesRouter = require("./saleRoutes");
+const salesOrdersRouter = require("./saleOrdersRoutes");
 
 // Category Route
 router.use("/api/category", categoryRouter);
@@ -29,5 +30,8 @@ router.use("/api/purchase-order", purchaseOrderRouter);
 
 // sales routes
 router.use("/api/sales", salesRouter);
+
+// sales orders routes
+router.use("/api/sales-order", salesOrdersRouter);
 
 module.exports = router;

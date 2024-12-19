@@ -114,9 +114,12 @@ export function SalePageHeader({ setView, data }) {
 
         {/* icons */}
         <div className="flex gap-5">
-          <div className="relative group cursor-pointer" title="Graph View">
-            <ChartNoAxesColumn onClick={() => setView("graph")} />
-          </div>
+          {/* if setView passed then show it */}
+          {setView && (
+            <div className="relative group cursor-pointer" title="Graph View">
+              <ChartNoAxesColumn onClick={() => setView("graph")} />
+            </div>
+          )}
 
           <ExcelData data={data} type={"sales"} />
 
