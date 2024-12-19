@@ -82,6 +82,7 @@ const Sidebar = ({ extraClass }) => {
                   pageLink="/purchase-orders"
                   pageName="Purchase Orders"
                 />
+                <DropDownLink pageLink="/expenses" pageName="Expenses" />
               </ul>
             </DropDownNavLink>
 
