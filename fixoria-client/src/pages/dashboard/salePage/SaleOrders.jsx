@@ -88,7 +88,7 @@ export const columns = [
         <DropdownMenuContent align="end">
           <DropdownMenuItem>
             <Link
-              to={`/edit-purchase-order/${row.original.purchase_order_id}`}
+              to={`/edit-sale-order/${row.original.sales_order_id}`}
               className="flex items-center gap-x-2 w-full"
             >
               <Edit className="mr-2 h-4 w-4" />

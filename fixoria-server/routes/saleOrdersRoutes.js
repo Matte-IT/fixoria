@@ -6,7 +6,17 @@ const {
 const {
   getAllSalesOrders,
 } = require("../controllers/sales-orders/getAllSalesOrders");
+const {
+  getSingleSalesOrder,
+} = require("../controllers/sales-orders/getSingleSalesOrder");
+const {
+  updateSalesOrder,
+} = require("../controllers/sales-orders/updateSalesOrder");
 
-router.get("/", getAllSalesOrders).post("/", createSalesOrder);
+router
+  .get("/", getAllSalesOrders)
+  .get("/:id", getSingleSalesOrder)
+  .put("/:id", updateSalesOrder)
+  .post("/", createSalesOrder);
 
 module.exports = router;
