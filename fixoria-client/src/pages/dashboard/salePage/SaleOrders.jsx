@@ -20,8 +20,8 @@ import { Link } from "react-router-dom";
 const columnHelper = createColumnHelper();
 
 export const columns = [
-  columnHelper.accessor("sales_date", {
-    header: "DATE",
+  columnHelper.accessor("sales_order_date", {
+    header: "Sales Order Date",
     cell: (info) => {
       const date = new Date(info.getValue());
 
@@ -49,48 +49,56 @@ export const columns = [
       return formattedDate.replace(day.toString(), `${day}${suffix}`);
     },
   }),
-  columnHelper.accessor("sales_id", {
-    header: "INVOICE NO.",
+
+  columnHelper.accessor("sales_order_id", {
+    header: "Invoice No.",
     cell: (info) => `INV-${info.getValue()}`,
   }),
+
   columnHelper.accessor("party_name", {
-    header: "PARTY NAME",
+    header: "Party Name",
     cell: (info) => info.getValue(),
   }),
+
   columnHelper.accessor("grand_total", {
     header: "Grand Total",
+    cell: (info) => `$${parseFloat(info.getValue()).toFixed(2)}`,
+  }),
+
+  columnHelper.accessor("status_name", {
+    header: "Current Status",
     cell: (info) => info.getValue(),
   }),
+
   columnHelper.display({
-    id: "print",
-    cell: () => (
-      <Button variant="ghost" size="icon" className="h-8 w-8">
-        <Printer className="h-4 w-4" />
-        <span className="sr-only">Print</span>
-      </Button>
-    ),
-  }),
-  columnHelper.display({
+    header: "Action",
     id: "actions",
     cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 focus-visible:ring-offset-0 focus-visible:ring-0"
+          >
             <MoreVertical className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <Link to={`/edit-sale/${row.original.sales_id}`}>
-            <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem>
+            <Link
+              to={`/edit-purchase-order/${row.original.purchase_order_id}`}
+              className="flex items-center gap-x-2 w-full"
+            >
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
-            </DropdownMenuItem>
-          </Link>
-
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => console.log("Delete", row.original.sales_id)}
-            className="cursor-pointer"
+            onClick={() =>
+              console.log("Delete", row.original.purchase_order_id)
+            }
           >
             <Trash className="mr-2 h-4 w-4" />
             <span>Delete</span>
@@ -102,7 +110,7 @@ export const columns = [
 ];
 
 export default function SaleOrders() {
-  const { data, isLoading, error } = useTanstackQuery("/sales");
+  const { data, isLoading, error } = useTanstackQuery("/sales-order");
 
   return (
     <div>
