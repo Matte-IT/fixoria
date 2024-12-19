@@ -17,16 +17,18 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 
+import AllPaymentIn from "@/pages/dashboard/paymentInPage/AllPaymentIn";
+import CreatePaymentIn from "@/pages/dashboard/paymentInPage/CreatePaymentIn";
 import AddExpense from "@/pages/dashboard/purchasePage/AddExpense";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
 import AddPurchaseOrder from "@/pages/dashboard/purchasePage/AddPurchaseOrder";
 import AllExpenses from "@/pages/dashboard/purchasePage/AllExpenses";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
 import EditPurchaseOrder from "@/pages/dashboard/purchasePage/EditPurchaseOrder";
-import { createBrowserRouter } from "react-router-dom";
-import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
 import AddSaleOrder from "@/pages/dashboard/salePage/AddSaleOrder";
 import EditSaleOrder from "@/pages/dashboard/salePage/EditSaleOrder";
+import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
+import { createBrowserRouter } from "react-router-dom";
 
 const router = createBrowserRouter([
   {
@@ -130,6 +132,17 @@ const router = createBrowserRouter([
         element: <AddExpense />,
       },
       // Expense Module Ends Here
+
+      // Payment In Module Starts Here
+      {
+        path: "/paymentIn",
+        element: <AllPaymentIn />,
+      },
+      {
+        path: "/add-paymentIn",
+        element: <CreatePaymentIn />,
+      },
+      // Payment In Module Ends Here
     ],
   },
 ]);
