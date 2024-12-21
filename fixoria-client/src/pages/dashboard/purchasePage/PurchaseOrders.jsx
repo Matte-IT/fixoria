@@ -11,13 +11,86 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useTanstackQuery from "@/hook/useTanstackQuery";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Edit, MoreVertical, Trash } from "lucide-react";
+import { Edit, MoreVertical, Trash, Printer } from "lucide-react";
 import { Link } from "react-router-dom";
 import PurchasePageHeader from "./PurchasePageHeader";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { toast } from "react-toastify";
 
 const columnHelper = createColumnHelper();
+
+const generatePDF = async (orderId) => {
+  try {
+    const response = await axiosInstance.get(`/purchase-order/${orderId}`);
+    const data = response.data;
+
+    const unitsResponse = await axiosInstance.get('/unit');
+    const units = unitsResponse.data;
+
+    const itemsResponse = await axiosInstance.get('/product/all');
+    const items = itemsResponse.data;
+
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.text('Purchase Order Invoice', 105, 15, { align: 'center' });
+    
+    // Add order details
+    doc.setFontSize(12);
+    doc.text(`Invoice No: INV-${data.purchase_order_id}`, 15, 30);
+    doc.text(`Date: ${new Date(data.purchase_order_date).toLocaleDateString('en-GB')}`, 15, 40);
+    doc.text(`Party: ${data.party_name}`, 15, 50);
+    
+    // Add items table
+    const tableColumn = ["Item", "Quantity", "Unit", "Price", "Status", "AMOUNT"];
+    const tableRows = data.purchase_order_details.map(item => {
+      const itemData = items.find(i => i.item_id === item.item_id);
+      const unit = units.find(u => u.unit_id === itemData?.unit_id);
+      const unitName = unit ? unit.unit_name : '';
+
+      return [
+        item.item_name,
+        item.quantity,
+        unitName,
+        `$${item.price}`,
+        data.status_name,
+        `$${item.total}`
+      ];
+    });
+
+    doc.autoTable({
+      startY: 70,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 }
+    });
+    
+    // Add totals
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.text(`Total: $${data.total_amount}`, 140, finalY);
+    doc.text(`Tax: $${data.tax_amount}`, 140, finalY + 10);
+    doc.text(`Discount: $${data.discount_amount}`, 140, finalY + 20);
+    doc.text(`Grand Total: $${data.grand_total}`, 140, finalY + 30);
+    
+    // Add notes if any
+    if (data.notes) {
+      doc.text('Notes:', 15, finalY + 40);
+      doc.text(data.notes, 15, finalY + 50);
+    }
+
+    // Open PDF in new tab
+    window.open(doc.output('bloburl'), '_blank');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    toast.error('Error generating PDF');
+  }
+};
 
 export const columns = [
   columnHelper.accessor("purchase_order_date", {
@@ -68,6 +141,21 @@ export const columns = [
   columnHelper.accessor("status_name", {
     header: "Current Status",
     cell: (info) => info.getValue(),
+  }),
+
+  columnHelper.display({
+    header: "PDF",
+    id: "pdf",
+    cell: ({ row }) => (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => generatePDF(row.original.purchase_order_id)}
+      >
+        <Printer className="h-4 w-4" />
+      </Button>
+    ),
   }),
 
   columnHelper.display({

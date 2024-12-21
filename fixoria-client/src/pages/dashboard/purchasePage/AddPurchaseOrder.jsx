@@ -218,28 +218,68 @@ export default function AddPurchaseOrder() {
   const onSubmit = async (data) => {
     const currentTab = tabsData[activeTab];
 
+    // Validate party selection
+    if (!currentTab.party) {
+      toast.error("Please select a party");
+      return;
+    }
+
+    // Validate dates
+    if (!currentTab.purchase_order_date || !currentTab.expected_delivery_date) {
+      toast.error("Please select both purchase order date and expected delivery date");
+      return;
+    }
+
+    // Validate if expected delivery date is not before purchase order date
+    if (new Date(currentTab.expected_delivery_date) < new Date(currentTab.purchase_order_date)) {
+      toast.error("Expected delivery date cannot be before purchase order date");
+      return;
+    }
+
+    // Validate rows
+    const validRows = currentTab.rows.filter(row => row.item && row.quantity && row.price);
+    if (validRows.length === 0) {
+      toast.error("Please add at least one item with quantity and price");
+      return;
+    }
+
+    // Validate tax and discount amounts
+    const tax = parseFloat(currentTab.tax_amount) || 0;
+    const discount = parseFloat(currentTab.discountAmount) || 0;
+    
+    if (tax < 0) {
+      toast.error("Tax amount cannot be negative");
+      return;
+    }
+
+    if (discount < 0) {
+      toast.error("Discount amount cannot be negative");
+      return;
+    }
+
+    if (discount > totals.amount) {
+      toast.error("Discount amount cannot be greater than total amount");
+      return;
+    }
+
     const purchaseData = {
       party_id: parseInt(currentTab.party) || 0,
       purchase_order_date: currentTab.purchase_order_date,
       expected_delivery_date: currentTab.expected_delivery_date,
       total_amount: totals.amount,
-      tax_amount: parseFloat(currentTab.tax_amount) || 0,
-      discount_amount: parseFloat(currentTab.discountAmount) || 0,
-      grand_total: totals.amount -
-        (parseFloat(currentTab.discountAmount) || 0) +
-        (parseFloat(currentTab.tax_amount) || 0),
+      tax_amount: tax,
+      discount_amount: discount,
+      grand_total: totals.amount - discount + tax,
       status_id: Number(1),
       notes: currentTab.notes || "",
-      purchase_order_details: currentTab.rows
-        .filter((row) => row.item && row.quantity && row.price)
-        .map((row) => ({
-          item_id: parseInt(row.item) || 0,
-          quantity: parseFloat(row.quantity) || 0,
-          price: parseFloat(row.price) || 0,
-          tax_amount: parseFloat(currentTab.tax_amount) || 0,
-          discount_amount: parseFloat(currentTab.discountAmount) || 0,
-          total: parseFloat(row.total) || 0,
-        })),
+      purchase_order_details: validRows.map((row) => ({
+        item_id: parseInt(row.item) || 0,
+        quantity: parseFloat(row.quantity) || 0,
+        price: parseFloat(row.price) || 0,
+        tax_amount: tax / validRows.length, // Distribute tax equally among items
+        discount_amount: discount / validRows.length, // Distribute discount equally among items
+        total: parseFloat(row.total) || 0,
+      })),
     };
 
     try {
@@ -250,8 +290,6 @@ export default function AddPurchaseOrder() {
       console.error('Error response:', error.response?.data);
       toast.error(error.response?.data?.error || "Failed to create purchase order");
     }
-
-    reset();
   };
 
   // Discount percentage change handler
