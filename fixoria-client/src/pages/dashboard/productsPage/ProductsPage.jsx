@@ -13,97 +13,72 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useLocalQuery from "@/hook/useLocalQuery";
+import useTanstackQuery from "@/hook/useTanstackQuery";
 
 import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 
+import { baseURL } from "@/utils/baseUrl";
+
 const ProductsPage = () => {
-  const { data, isLoading, error } = useLocalQuery("./products.json");
+  const { data, isLoading, error } = useTanstackQuery("/product");
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const columns = [
     {
-      accessorKey: "product_name",
+      accessorKey: "item_name",
       header: "Product Name",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 lg:w-[300px]">
-          <img
-            src={row.original.product_image}
-            alt={row.original.product_name}
-            className="w-8 h-8 rounded-md object-cover"
-          />
-          <span>{row.original.product_name}</span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const hasImage = row.original.image_path ? row.original.image_path : "";
+
+        return (
+          <div className="flex items-center gap-2 lg:w-[300px]">
+            {/* if image link exist show image then show first character of name */}
+            {hasImage ? (
+              <img
+                src={`${baseURL.replace("/api", "")}/${
+                  row.original.image_path
+                }`}
+                alt={row.original.item_name}
+                className="w-8 h-8 rounded-md object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center text-gray-600">
+                {row.original.item_name.charAt(0)}
+              </div>
+            )}
+
+            <span>{row.original.item_name}</span>
+          </div>
+        );
+      },
     },
     {
-      accessorKey: "category",
+      accessorKey: "category_name",
       header: "Category",
       cell: ({ row }) => (
         <div>
-          <span>{row.original.category}</span>
+          <span>{row.original.category_name}</span>
         </div>
       ),
     },
     {
-      accessorKey: "stock",
-      header: "Stock",
-      cell: ({ row }) => {
-        const stock = row.original.stock;
-
-        if (stock === 0) {
-          return (
-            <span className="text-red-500 font-semibold">Out of Stock</span>
-          );
-        } else if (stock < 125) {
-          return (
-            <div className="flex items-center gap-2">
-              <span>{stock}</span>
-              <span className="text-yellow-500 font-semibold">Low Stock</span>
-            </div>
-          );
-        } else {
-          return <span>{stock}</span>;
-        }
-      },
-    },
-    {
-      accessorKey: "price",
+      accessorKey: "sale_price",
       header: "Price",
-      cell: ({ row }) => <span>${row.original.price}</span>,
+      cell: ({ row }) => (
+        <div>
+          <span>{row.original.sale_price}</span>
+        </div>
+      ),
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-
-        const getStatusClass = (status) => {
-          switch (status) {
-            case "inactive":
-              return "text-red-700 bg-red-100";
-            case "published":
-              return "text-green-700 bg-green-100";
-            case "stock out":
-              return "text-yellow-600 bg-yellow-100";
-            case "draft list":
-              return "text-gray-500 bg-gray-100";
-            default:
-              return "text-black";
-          }
-        };
-
-        return (
-          <span
-            className={`${getStatusClass(
-              status
-            )} px-3 py-2 rounded-full capitalize font-semibold`}
-          >
-            {status}
-          </span>
-        );
-      },
+      accessorKey: "unit_name",
+      header: "Unit",
+      cell: ({ row }) => (
+        <div>
+          <span>{row.original.unit_name}</span>
+        </div>
+      ),
     },
     {
       accessorKey: "actions",

@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+
+import { baseURL } from "@/utils/baseUrl";
 
 export const axiosInstance = axios.create({
-  baseURL: "https://fixoria.matteit.com/api",
-  // baseURL: "http://localhost:5000/api",
+  baseURL,
 });
 
 export default function useTanstackQuery(endpoint) {

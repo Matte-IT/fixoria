@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -15,6 +16,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Add this line to serve the uploads directory statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // root route
 app.get("/api", (req, res) => {
