@@ -29,7 +29,8 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
         console.error("Error parsing date:", e);
       }
     }
-    return null; // Return null for new parties
+    // Return current date for new parties
+    return new Date();
   });
 
   // Reset form when defaultValues changes
@@ -51,7 +52,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
         console.error("Error parsing date:", e);
       }
     } else {
-      setDate(null); // Reset date when creating new party
+      setDate(new Date()); // Reset date when creating new party
     }
   }, [defaultValues]);
 
@@ -62,7 +63,10 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
     reset,
     setValue,
   } = useForm({
-    defaultValues: defaultValues || {},
+    defaultValues: defaultValues || {
+      opening_balance: "0.00",
+      balance_as_of_date: new Date().toISOString().split('T')[0]
+    },
   });
 
   // Set form values when editing
@@ -193,23 +197,26 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
                 inputType={"number"}
                 inputName={"opening_balance"}
                 inputId={"opening_balance"}
+                defaultValue={"0.00"}
+                step="0.01"
                 {...register("opening_balance")}
               />
             </div>
 
             <div className="w-full">
-              <label
-                htmlFor="purchase price"
-                className="block mb-2 text-base text-[#333]"
-              >
-                Balance as of date
-              </label>
+            <CustomLabel
+                labelName={"Balance as of Date"}
+              />
 
               <DatePicker
-                date={date}
-                setDate={(newDate) => {
-                  setDate(newDate);
+                selected={date}
+                onChange={(date) => {
+                  setDate(date);
                 }}
+                date={date}
+                setDate={setDate}
+                dateFormat="yyyy-MM-dd"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>

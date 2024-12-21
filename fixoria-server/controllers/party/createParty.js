@@ -34,14 +34,16 @@ const createParty = async (req, res) => {
 
     const partyId = newParty.rows[0].party_id;
 
-    // Insert into 'party_opening_balance' table
-    if (opening_balance && balance_as_of_date) {
-      await pool.query(
-        `INSERT INTO party.party_opening_balance (party_id, opening_balance, balance_as_of_date)
-         VALUES ($1, $2, $3)`,
-        [partyId, opening_balance, balance_as_of_date]
-      );
-    }
+    // Insert into 'party_opening_balance' table with default values if not provided
+    await pool.query(
+      `INSERT INTO party.party_opening_balance (party_id, opening_balance, balance_as_of_date)
+       VALUES ($1, $2, $3)`,
+      [
+        partyId,
+        opening_balance || 0,
+        balance_as_of_date || new Date().toISOString().split('T')[0]
+      ]
+    );
 
     res.status(201).json({
       message: "Party and opening balance created successfully",
