@@ -28,22 +28,18 @@ const ProductCategory = ({ setCategory }) => {
 
   const { data, isLoading, error, refetch } = useTanstackQuery("/category");
 
-  const onSubmit = async (formData) => {
+  const createCategory = async (formData) => {
     try {
       const response = await axiosInstance.post("/category", {
         category_name: formData.category_name,
       });
 
-      // Refetch to get updated list with new category
       await refetch();
-
-      // Select the newly created category
-      const newCategory = response.data;
-      selectCategory(newCategory);
-
       reset();
       setIsDialogOpen(false);
       toast.success("Category Created!");
+      
+      selectCategory(response.data);
     } catch (error) {
       toast.error("Category Already Exists!");
     }
@@ -135,7 +131,7 @@ const ProductCategory = ({ setCategory }) => {
             <DialogTitle>Add Category</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-4">
             <input
               {...register("category_name", {
                 required: "Category name is required",
@@ -151,12 +147,13 @@ const ProductCategory = ({ setCategory }) => {
             )}
 
             <Button
-              type="submit"
+              type="button"
+              onClick={handleSubmit(createCategory)}
               className="w-full bg-defaultBlue hover:bg-defaultBlue text-white"
             >
               Create
             </Button>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
