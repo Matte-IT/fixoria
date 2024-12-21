@@ -31,6 +31,7 @@ import AddSaleOrder from "@/pages/dashboard/salePage/AddSaleOrder";
 import EditSaleOrder from "@/pages/dashboard/salePage/EditSaleOrder";
 import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
 import { createBrowserRouter } from "react-router-dom";
+import EditProduct from "@/pages/dashboard/productsPage/EditProduct";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ const router = createBrowserRouter([
         index: true,
         element: <HomePage />,
       },
+      // product routes start
       {
         path: "/products",
         element: <ProductsPage />,
@@ -50,6 +52,11 @@ const router = createBrowserRouter([
         path: "/add-product",
         element: <AddProductPage />,
       },
+      {
+        path: "/edit-product/:id",
+        element: <EditProduct />,
+      },
+      // product routes end
       {
         path: "/inventory",
         element: <InventoryPage />,
