@@ -15,13 +15,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useTanstackQuery from "@/hook/useTanstackQuery";
 
-import { Ellipsis } from "lucide-react";
+import {
+  Edit,
+  Ellipsis,
+  MoreVertical,
+  MoreVerticalIcon,
+  Trash,
+} from "lucide-react";
 import { useState } from "react";
 
 import { baseURL } from "@/utils/baseUrl";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 const ProductsPage = () => {
-  const { data, isLoading, error } = useTanstackQuery("/product");
+  const { data, isLoading, error } = useTanstackQuery("/product/all");
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const columns = [
@@ -79,16 +88,32 @@ const ProductsPage = () => {
       ),
     },
     {
-      accessorKey: "actions",
-      header: "Actions",
+      id: "actions",
       cell: ({ row }) => (
         <DropdownMenu>
-          <DropdownMenuTrigger className="text-gray-600">
-            <Ellipsis />
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Edit</DropdownMenuLabel>
-            <DropdownMenuLabel>Delete</DropdownMenuLabel>
+          <DropdownMenuContent align="end">
+            <Link to={`/edit-product/${row.original.item_id}`}>
+              <DropdownMenuItem className="flex items-center justify-center">
+                <Edit className="mr-2 h-4 w-4" />
+                <span>Edit</span>
+              </DropdownMenuItem>
+            </Link>
+
+            <Link>
+              <DropdownMenuItem
+                onClick={() => console.log("Delete", row.original.sales_id)}
+                className="flex items-center justify-center"
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
