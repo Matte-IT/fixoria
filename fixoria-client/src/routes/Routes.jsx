@@ -18,6 +18,7 @@ import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 
 import CreateExpenseItem from "@/pages/dashboard/expenseItemsPage/CreateExpenseItem";
+import EditExpenseItem from "@/pages/dashboard/expenseItemsPage/EditExpenseItem";
 import ExpenseItems from "@/pages/dashboard/expenseItemsPage/ExpenseItems";
 import AllPaymentIn from "@/pages/dashboard/paymentInPage/AllPaymentIn";
 import CreatePaymentIn from "@/pages/dashboard/paymentInPage/CreatePaymentIn";
@@ -141,6 +142,11 @@ const router = createBrowserRouter([
       {
         path: "/expense-items",
         element: <ExpenseItems />,
+      },
+
+      {
+        path: "/edit-expense-item/:id",
+        element: <EditExpenseItem />,
       },
       // Expense Items Module Ends Here
 

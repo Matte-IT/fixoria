@@ -10,47 +10,69 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-export default function CreateExpenseItem() {
+const EditExpenseItem = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    setValue,
-    trigger,
     formState: { errors },
+    control,
+    setValue,
   } = useForm();
 
   const { data: units, isLoading, error } = useTanstackQuery("/unit");
 
-  if (isLoading) return <Loading />;
-  if (error) return <p>Error loading units</p>;
+  // Fetch expense item details for editing
+  const {
+    data: expenseItem,
+    isLoading: itemLoading,
+    error: itemError,
+  } = useTanstackQuery(`/expense-items/${id}`);
 
+  if (isLoading || itemLoading) return <Loading />;
+  if (error || itemError) return <p>Error loading units or expense item</p>;
+
+  // Set the form values once data is fetched
+  if (expenseItem) {
+    setValue("name", expenseItem.name);
+    setValue("price", expenseItem.price);
+    setValue("unit_id", expenseItem.unit_id.toString());
+    setValue("description", expenseItem.description);
+  }
+
+  // Submit handler to update the expense item
   const onSubmit = async (data) => {
-    // Ensure the name is in lowercase before submitting
-    data.name = data.name.toLowerCase();
-    data.price = Number(data.price);
+    // Convert unit_id to integer before sending it to backend
+    const updatedData = {
+      ...data,
+      name: data.name.toLowerCase(),
+      price: Number(data.price),
+      unit_id: parseInt(data.unit_id),
+    };
+
     try {
-      await axiosInstance.post("/expense-items", data);
-      toast.success("Expense item created!");
-      navigate("/expense-items");
+      // Use PUT to update the item
+      const response = await axiosInstance.put(
+        `/expense-items/${id}`,
+        updatedData
+      );
+      toast.success("Expense item updated successfully!");
+      navigate("/expense-items"); // Redirect after update
     } catch (error) {
-      if (error.response && error.response.status === 409) {
-        toast.error("Expense item with the same name already exists.");
-      } else {
-        toast.error("Failed to create expense item");
-      }
+      toast.error(`${error.message}`);
     }
   };
 
   return (
     <div>
-      <PageTitle title="Create An Expense Item" />
+      <PageTitle title="Edit Expense Item" />
       <div className="mx-auto mt-8">
-        <PageName pageName="Create An Expense Item" />
+        <PageName pageName="Edit Expense Item" />
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="bg-white p-6 rounded-lg shadow mt-6"
@@ -94,33 +116,32 @@ export default function CreateExpenseItem() {
 
             <div>
               <Label>Unit</Label>
-              <Select
-                onValueChange={(value) => {
-                  setValue("unit_id", value);
-                  trigger("unit_id");
-                }}
-              >
-                <SelectTrigger
-                  className={`w-full mt-1 focus:ring-offset-0 focus:ring-0 ${
-                    errors.unit_id ? "border-red-500" : ""
-                  }`}
-                >
-                  <SelectValue placeholder="Select a unit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {units.map((unit) => (
-                    <SelectItem
-                      key={unit.unit_id}
-                      value={unit.unit_id.toString()}
+              <Controller
+                name="unit_id"
+                control={control}
+                defaultValue={expenseItem ? expenseItem.unit_id.toString() : ""}
+                rules={{ required: "Unit is required" }}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      className={`w-full mt-1 focus:ring-offset-0 focus:ring-0 ${
+                        errors.unit_id ? "border-red-500" : ""
+                      }`}
                     >
-                      {unit.unit_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <input
-                type="hidden"
-                {...register("unit_id", { required: "Unit is required" })}
+                      <SelectValue placeholder="Select a unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {units.map((unit) => (
+                        <SelectItem
+                          key={unit.unit_id}
+                          value={unit.unit_id.toString()}
+                        >
+                          {unit.unit_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               />
               {errors.unit_id && (
                 <p className="text-red-500 text-sm mt-1">
@@ -146,11 +167,13 @@ export default function CreateExpenseItem() {
               type="submit"
               className="px-4 py-2 bg-defaultBlue text-white rounded-md"
             >
-              Create An Expense Item
+              Update Expense Item
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-}
+};
+
+export default EditExpenseItem;
