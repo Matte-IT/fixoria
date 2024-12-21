@@ -21,6 +21,8 @@ const getAllParties = async (req, res) => {
         p.party_id = pob.party_id
       WHERE
         p.is_deleted = false
+      ORDER BY
+        p.party_id ASC
     `;
 
     const result = await pool.query(query);
