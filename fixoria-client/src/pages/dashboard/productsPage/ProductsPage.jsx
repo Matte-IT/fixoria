@@ -36,9 +36,7 @@ const ProductsPage = () => {
             {/* if image link exist show image then show first character of name */}
             {hasImage ? (
               <img
-                src={`${baseURL.replace("/api", "")}/${
-                  row.original.image_path
-                }`}
+                src={`${baseURL}/${row.original.image_path}`}
                 alt={row.original.item_name}
                 className="w-8 h-8 rounded-md object-cover"
               />
