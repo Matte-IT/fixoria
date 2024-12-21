@@ -44,28 +44,26 @@ const updateAParty = async (req, res) => {
     );
 
     // Update the 'party_opening_balance' table
-    if (opening_balance && balance_as_of_date) {
-      const existingBalance = await pool.query(
-        `SELECT * FROM party.party_opening_balance WHERE party_id = $1`,
-        [party_id]
-      );
+    const existingBalance = await pool.query(
+      `SELECT * FROM party.party_opening_balance WHERE party_id = $1`,
+      [party_id]
+    );
 
-      if (existingBalance.rows.length > 0) {
-        // Update existing record
-        await pool.query(
-          `UPDATE party.party_opening_balance
-           SET opening_balance = $1, balance_as_of_date = $2
-           WHERE party_id = $3`,
-          [opening_balance, balance_as_of_date, party_id]
-        );
-      } else {
-        // Insert new record if none exists
-        await pool.query(
-          `INSERT INTO party.party_opening_balance (party_id, opening_balance, balance_as_of_date)
-           VALUES ($1, $2, $3)`,
-          [party_id, opening_balance, balance_as_of_date]
-        );
-      }
+    if (existingBalance.rows.length > 0) {
+      // Update existing record with provided values
+      await pool.query(
+        `UPDATE party.party_opening_balance
+         SET opening_balance = $1, balance_as_of_date = $2
+         WHERE party_id = $3`,
+        [opening_balance, balance_as_of_date, party_id]
+      );
+    } else {
+      // Insert new record if none exists
+      await pool.query(
+        `INSERT INTO party.party_opening_balance (party_id, opening_balance, balance_as_of_date)
+         VALUES ($1, $2, $3)`,
+        [party_id, opening_balance, balance_as_of_date]
+      );
     }
 
     // Commit transaction

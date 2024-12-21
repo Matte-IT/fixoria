@@ -47,13 +47,13 @@ export default function AddPurchase() {
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
       party_id: "",
-      sales_date: new Date(),
+      purchase_date: new Date(),
       total_amount: 0,
       tax_amount: 0,
       discount_amount: 0,
       grand_total: 0,
       notes: "",
-      sales_details: [],
+      purchase_details: [],
     },
   });
 
@@ -211,41 +211,78 @@ export default function AddPurchase() {
     }));
   };
 
-  const onSubmit = async (data) => {
-    const currentTab = tabsData[activeTab];
-
-    const purchaseData = {
-      party_id: parseInt(currentTab.party) || 0,
-      purchase_date: currentTab.date,
-      total_amount: totals.amount,
-      tax_amount: parseFloat(currentTab.tax_amount) || 0,
-      discount_amount: parseFloat(currentTab.discountAmount) || 0,
-      grand_total:
-        totals.amount -
-        (parseFloat(currentTab.discountAmount) || 0) +
-        (parseFloat(currentTab.tax_amount) || 0),
-      notes: currentTab.notes,
-      purchase_details: currentTab.rows
-        .filter((row) => row.item && row.quantity && row.price)
-        .map((row) => ({
-          item_id: parseInt(row.item) || 0,
-          quantity: parseFloat(row.quantity) || 0,
-          price: parseFloat(row.price) || 0,
-          tax_amount: parseFloat(currentTab.tax_amount) || 0,
-          discount_amount: parseFloat(currentTab.discountAmount) || 0,
-          total: parseFloat(row.total) || 0,
-        })),
-    };
-
+  const onSubmit = async (formData) => {
     try {
-      const res = await axiosInstance.post("/purchase", purchaseData);
-      toast.success(res.data.message);
-      navigate("/purchase");
-    } catch (res) {
-      toast.error(res.response.data.message);
-    }
+      const currentTab = tabsData[activeTab];
+      
+      // Validate required fields
+      if (!currentTab.party) {
+        toast.error("Please select a party");
+        return;
+      }
 
-    reset();
+      if (!currentTab.date) {
+        toast.error("Please select purchase date");
+        return;
+      }
+
+      // Get current tab's rows and filter out empty rows
+      const filledRows = currentTab.rows.filter(row => 
+        row.item || row.quantity || row.price
+      );
+      
+      // Validate if there are any items
+      if (!filledRows || filledRows.length === 0) {
+        toast.error("Please add at least one item");
+        return;
+      }
+
+      // Validate only the filled rows
+      for (let row of filledRows) {
+        if (!row.item) {
+          toast.error("Please select an item");
+          return;
+        }
+        if (!row.quantity || row.quantity <= 0) {
+          toast.error("Please enter valid quantity");
+          return;
+        }
+        if (!row.price || row.price <= 0) {
+          toast.error("Please enter valid price");
+          return;
+        }
+      }
+
+      // Format purchase details using only filled rows
+      const purchase_details = filledRows.map(row => ({
+        item_id: row.item,
+        quantity: parseFloat(row.quantity),
+        price: parseFloat(row.price),
+        tax_amount: parseFloat(row.tax_amount || 0),
+        discount_amount: parseFloat(row.discount_amount || 0),
+        total: parseFloat(row.total)
+      }));
+
+      const finalPurchaseData = {
+        party_id: parseInt(currentTab.party) || 0,
+        purchase_date: currentTab.date,
+        total_amount: totals.amount,
+        tax_amount: parseFloat(currentTab.tax_amount) || 0,
+        discount_amount: parseFloat(currentTab.discountAmount) || 0,
+        grand_total:
+          totals.amount -
+          (parseFloat(currentTab.discountAmount) || 0) +
+          (parseFloat(currentTab.tax_amount) || 0),
+        notes: currentTab.notes,
+        purchase_details: purchase_details
+      };
+
+      await axiosInstance.post("/purchase", finalPurchaseData);
+      toast.success("Purchase created successfully!");
+      navigate("/purchase");
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error creating purchase");
+    }
   };
 
   // Discount percentage change handler
