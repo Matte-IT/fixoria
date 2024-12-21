@@ -17,6 +17,8 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import HomePage from "../pages/dashboard/homePage/HomePage";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 
+import CreateExpenseItem from "@/pages/dashboard/expenseItemsPage/CreateExpenseItem";
+import ExpenseItems from "@/pages/dashboard/expenseItemsPage/ExpenseItems";
 import AllPaymentIn from "@/pages/dashboard/paymentInPage/AllPaymentIn";
 import CreatePaymentIn from "@/pages/dashboard/paymentInPage/CreatePaymentIn";
 import AddExpense from "@/pages/dashboard/purchasePage/AddExpense";
@@ -122,6 +124,19 @@ const router = createBrowserRouter([
         path: "/edit-purchase-order/:id",
         element: <EditPurchaseOrder />,
       },
+
+      // Expense Items Module Starts Here
+      {
+        path: "/create-expense-item",
+        element: <CreateExpenseItem />,
+      },
+
+      {
+        path: "/expense-items",
+        element: <ExpenseItems />,
+      },
+      // Expense Items Module Ends Here
+
       // Expense Module Starts Here
       {
         path: "/expenses",

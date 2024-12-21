@@ -13,12 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Edit, MoreVertical, Trash, Printer } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { Edit, MoreVertical, Printer, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
 import PurchasePageHeader from "./PurchasePageHeader";
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
 
 const columnHelper = createColumnHelper();
 
@@ -26,38 +25,45 @@ const generatePDF = async (purchaseId) => {
   try {
     const response = await axiosInstance.get(`/purchase/${purchaseId}`);
     const data = response.data;
-    console.log('Purchase Data:', data);
 
-    const unitsResponse = await axiosInstance.get('/unit');
+    const unitsResponse = await axiosInstance.get("/unit");
     const units = unitsResponse.data;
-    console.log('Units Data:', units);
 
-    const itemsResponse = await axiosInstance.get('/product/all');
+    const itemsResponse = await axiosInstance.get("/product/all");
     const items = itemsResponse.data;
-    console.log('Items Data:', items);
 
     const doc = new jsPDF();
-    
+
     // Add title
     doc.setFontSize(20);
-    doc.text('Purchase Bill Invoice', 105, 15, { align: 'center' });
-    
+    doc.text("Purchase Bill Invoice", 105, 15, { align: "center" });
+
     // Add invoice details
     doc.setFontSize(12);
     doc.text(`Invoice No: INV-${data.purchase_id}`, 15, 30);
-    doc.text(`Date: ${new Date(data.purchase_date).toLocaleDateString('en-GB')}`, 15, 40);
+    doc.text(
+      `Date: ${new Date(data.purchase_date).toLocaleDateString("en-GB")}`,
+      15,
+      40
+    );
     doc.text(`Party: ${data.party_name}`, 15, 50);
-    
+
     // Add items table
-    const tableColumn = ["Item", "Quantity", "Unit", "Price", "Tax", "Discount", "Total"];
-    const tableRows = data.purchase_details.map(item => {
-      const itemData = items.find(i => i.item_id === item.item_id);
-      console.log('Item Data:', itemData);
-      
-      const unit = units.find(u => u.unit_id === itemData?.unit_id);
-      console.log('Unit Found:', unit);
-      
-      const unitName = unit ? unit.unit_name : '';
+    const tableColumn = [
+      "Item",
+      "Quantity",
+      "Unit",
+      "Price",
+      "Tax",
+      "Discount",
+      "Total",
+    ];
+    const tableRows = data.purchase_details.map((item) => {
+      const itemData = items.find((i) => i.item_id === item.item_id);
+
+      const unit = units.find((u) => u.unit_id === itemData?.unit_id);
+
+      const unitName = unit ? unit.unit_name : "";
 
       return [
         item.item_name,
@@ -66,7 +72,7 @@ const generatePDF = async (purchaseId) => {
         `$${item.price}`,
         `$${item.tax_amount}`,
         `$${item.discount_amount}`,
-        `$${item.total}`
+        `$${item.total}`,
       ];
     });
 
@@ -74,7 +80,7 @@ const generatePDF = async (purchaseId) => {
       startY: 60,
       head: [tableColumn],
       body: tableRows,
-      theme: 'grid',
+      theme: "grid",
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
       columnStyles: {
@@ -84,28 +90,28 @@ const generatePDF = async (purchaseId) => {
         3: { cellWidth: 20 }, // Price
         4: { cellWidth: 20 }, // Tax
         5: { cellWidth: 20 }, // Discount
-        6: { cellWidth: 30 }  // Total
-      }
+        6: { cellWidth: 30 }, // Total
+      },
     });
-    
+
     // Add totals
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.text(`Sub Total: $${data.total_amount}`, 140, finalY);
     doc.text(`Tax: $${data.tax_amount}`, 140, finalY + 10);
     doc.text(`Discount: $${data.discount_amount}`, 140, finalY + 20);
     doc.text(`Grand Total: $${data.grand_total}`, 140, finalY + 30);
-    
+
     // Add notes if any
     if (data.notes) {
-      doc.text('Notes:', 15, finalY + 45);
+      doc.text("Notes:", 15, finalY + 45);
       doc.text(data.notes, 15, finalY + 55);
     }
 
     // Open PDF in new tab
-    window.open(doc.output('bloburl'), '_blank');
+    window.open(doc.output("bloburl"), "_blank");
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    toast.error('Error generating PDF');
+    console.error("Error generating PDF:", error);
+    toast.error("Error generating PDF");
   }
 };
 
