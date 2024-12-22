@@ -13,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useTanstackQuery from "@/hook/useTanstackQuery";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 
 import {
   Edit,
@@ -28,10 +28,22 @@ import { baseURL } from "@/utils/baseUrl";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { toast } from "react-toastify";
 
 const ProductsPage = () => {
-  const { data, isLoading, error } = useTanstackQuery("/product/all");
+  const { data, isLoading, error, refetch } = useTanstackQuery("/product/all");
   const [selectedStatus, setSelectedStatus] = useState("");
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await axiosInstance.delete(`/product/${id}`);
+
+      toast.success(res.data.message);
+      refetch();
+    } catch (res) {
+      toast.error(res.response?.data?.message || "An error occurred");
+    }
+  };
 
   const columns = [
     {
@@ -107,7 +119,7 @@ const ProductsPage = () => {
 
             <Link>
               <DropdownMenuItem
-                onClick={() => console.log("Delete", row.original.sales_id)}
+                onClick={() => handleDelete(row.original.item_id)}
                 className="flex items-center justify-center"
               >
                 <Trash className="mr-2 h-4 w-4" />
