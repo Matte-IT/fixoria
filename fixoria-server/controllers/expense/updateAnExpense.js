@@ -26,7 +26,11 @@ const updateAnExpense = async (req, res) => {
     }
 
     // Validate the parsed data
-    if (!expenseData || !expenseData.expense_date || !expenseData.total_amount) {
+    if (
+      !expenseData ||
+      !expenseData.expense_date ||
+      !expenseData.total_amount
+    ) {
       return res.status(400).json({
         error: "Missing required fields",
         required: ["expense_date", "total_amount"],
@@ -43,14 +47,14 @@ const updateAnExpense = async (req, res) => {
     }
 
     // Get file path if exists
-    const uploaded_file_path = req.file ? req.file.path.replace(/\\/g, "/") : null;
+    const uploaded_file_path = req.file
+      ? req.file.path.replace(/\\/g, "/")
+      : null;
 
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
-
-      console.log("Updating expense with data:", expenseData);
 
       // Update the expense
       await client.query(
@@ -115,10 +119,11 @@ const updateAnExpense = async (req, res) => {
 
       await client.query("COMMIT");
 
-      res.status(200).json({ 
+      res.status(200).json({
         message: "Expense updated successfully",
         expense_id: id,
-        uploaded_file_path: uploaded_file_path || expenseData.uploaded_file_path
+        uploaded_file_path:
+          uploaded_file_path || expenseData.uploaded_file_path,
       });
     } catch (error) {
       await client.query("ROLLBACK");
