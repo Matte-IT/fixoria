@@ -1,6 +1,6 @@
 const pool = require("../../config/database");
 
-const createProduct = async (req, res) => {
+async function createProduct(req, res) {
   // Extract fields from the request body
   const {
     item_name,
@@ -79,6 +79,6 @@ const createProduct = async (req, res) => {
     console.error("Error creating product:", error);
     res.status(500).json({ message: "Error creating product", error });
   }
-};
+}
 
 module.exports = { createProduct };
