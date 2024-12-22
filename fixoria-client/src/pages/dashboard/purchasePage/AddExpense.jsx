@@ -69,17 +69,16 @@ const AddExpense = () => {
     );
   };
 
-  const { data, isLoading, error } = useTanstackQuery("/party");
   const { data: units } = useTanstackQuery("/unit");
 
   const {
     data: items,
     isLoading: itemsLoading,
     error: itemsError,
-  } = useTanstackQuery("/product/all");
+  } = useTanstackQuery("/expense-items");
 
-  if (isLoading || itemsLoading) return <Loading />;
-  if (error || itemsError) return <p>Error</p>;
+  if (itemsLoading) return <Loading />;
+  if (itemsError) return <p>Error</p>;
 
   const addNewTab = () => {
     if (tabs.length < 5) {

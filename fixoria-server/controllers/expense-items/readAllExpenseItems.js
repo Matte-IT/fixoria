@@ -15,13 +15,8 @@ const readAllExpenseItems = async (req, res) => {
         units.unit_name
        FROM inventory.expense_item
        JOIN inventory.units ON expense_item.unit_id = units.unit_id
-       WHERE expense_item.is_active = TRUE
        ORDER BY expense_item.expense_item_id ASC`
     );
-
-    // if (result.rows.length === 0) {
-    //   return res.status(404).json({ message: "No active expense items found" });
-    // }
 
     res.status(200).json(result.rows);
   } catch (err) {

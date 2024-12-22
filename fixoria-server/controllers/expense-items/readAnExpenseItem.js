@@ -13,16 +13,17 @@ const readAnExpenseItem = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT * FROM inventory.expense_item 
-       WHERE expense_item_id = $1 AND is_active = TRUE`,
+       WHERE expense_item_id = $1`,
       [id]
     );
 
     // Check if the item exists
     if (result.rows.length === 0) {
       return res.status(404).json({
-        error: "Expense item not found or is inactive.",
+        error: "Expense item not found.",
       });
     }
+
     res.status(200).json(result.rows[0]);
   } catch (err) {
     console.error(err.message);

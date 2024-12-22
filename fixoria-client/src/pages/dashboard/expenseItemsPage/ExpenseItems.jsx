@@ -37,12 +37,25 @@ const ExpenseItems = () => {
 
     columnHelper.accessor("unit_name", {
       header: "Unit Name",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const value = info.getValue();
+        return <span className="capitalize">{value.toLowerCase()}</span>;
+      },
     }),
 
     columnHelper.accessor("price", {
       header: "Item Price",
       cell: (info) => `$${info.getValue()}`,
+    }),
+
+    columnHelper.accessor("is_active", {
+      header: "Active Status",
+      cell: (info) => {
+        const value = info.getValue();
+        return (
+          <span className="capitalize">{value ? "Active" : "In Active"}</span>
+        );
+      },
     }),
 
     columnHelper.accessor("description", {
@@ -75,13 +88,16 @@ const ExpenseItems = () => {
                 <span>Edit</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => deleteExpenseItem(row.original.expense_item_id)}
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              <span>Delete</span>
-            </DropdownMenuItem>
+
+            {row.original.is_active && (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => deleteExpenseItem(row.original.expense_item_id)}
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),

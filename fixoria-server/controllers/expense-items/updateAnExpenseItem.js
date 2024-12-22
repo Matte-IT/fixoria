@@ -72,7 +72,7 @@ const updateAnExpenseItem = async (req, res) => {
   const query = `
     UPDATE inventory.expense_item
     SET ${fields.join(", ")}, updated_at = CURRENT_TIMESTAMP
-    WHERE expense_item_id = $${counter} AND is_active = TRUE
+    WHERE expense_item_id = $${counter}
     RETURNING *`;
 
   try {
@@ -81,7 +81,7 @@ const updateAnExpenseItem = async (req, res) => {
     // Check if the item was updated
     if (result.rows.length === 0) {
       return res.status(404).json({
-        error: "Expense item not found or is inactive.",
+        error: "Expense item not found.",
       });
     }
 
