@@ -19,10 +19,11 @@ import { toast } from "react-toastify";
 
 const AddExpense = () => {
   const navigate = useNavigate();
+  const [fileName, setFileName] = useState("Upload A File");
   const [tabs, setTabs] = useState([{ id: 1, title: "Expense #1" }]);
   const [activeTab, setActiveTab] = useState(1);
 
-  // Create a state object to store form data for each tab
+  // Simplified tabsData state
   const [tabsData, setTabsData] = useState({
     1: {
       date: new Date(),
@@ -30,23 +31,19 @@ const AddExpense = () => {
         { id: 1, item: "", quantity: "", unit_id: "", price: "", total: "" },
         { id: 2, item: "", quantity: "", unit_id: "", price: "", total: "" },
       ],
-      party: "",
       notes: "",
-      discountAmount: "",
-      tax_amount: "",
+      fileName: "Upload A File",
     },
   });
 
-  const { register, handleSubmit, setValue, watch, reset } = useForm({
+  // Simplified form defaults
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {
-      party_id: "",
-      sales_date: new Date(),
+      expense_date: new Date(),
       total_amount: 0,
-      tax_amount: 0,
-      discount_amount: 0,
       grand_total: 0,
       notes: "",
-      sales_details: [],
+      expenseDetails: [],
     },
   });
 
@@ -77,6 +74,8 @@ const AddExpense = () => {
     error: itemsError,
   } = useTanstackQuery("/expense-items");
 
+  const activeItems = items?.filter((item) => item.is_active) || [];
+
   if (itemsLoading) return <Loading />;
   if (itemsError) return <p>Error</p>;
 
@@ -98,12 +97,8 @@ const AddExpense = () => {
             { id: 1, item: "", quantity: "", unit: "", price: "", total: "" },
             { id: 2, item: "", quantity: "", price: "", unit: "", total: "" },
           ],
-          party: "",
           notes: "",
-          discountAmount: "", // Empty discount amount
-          discountPercentage: "", // Empty discount percentage
-          tax_amount: "", // Empty tax amount
-          taxPercentage: "", // Empty tax percentage
+          fileName: "Upload A File", // Initialize file name for new tab
         },
       }));
       setActiveTab(newId);
@@ -203,75 +198,131 @@ const AddExpense = () => {
     }));
   };
 
-  const onSubmit = async (data) => {
-    const currentTab = tabsData[activeTab];
-
-    const purchaseData = {
-      party_id: parseInt(currentTab.party) || 0,
-      purchase_date: currentTab.date,
-      total_amount: totals.amount,
-      tax_amount: parseFloat(currentTab.tax_amount) || 0,
-      discount_amount: parseFloat(currentTab.discountAmount) || 0,
-      grand_total:
-        totals.amount -
-        (parseFloat(currentTab.discountAmount) || 0) +
-        (parseFloat(currentTab.tax_amount) || 0),
-      notes: currentTab.notes,
-      purchase_details: currentTab.rows
-        .filter((row) => row.item && row.quantity && row.price)
-        .map((row) => ({
-          item_id: parseInt(row.item) || 0,
-          quantity: parseFloat(row.quantity) || 0,
-          price: parseFloat(row.price) || 0,
-          tax_amount: parseFloat(currentTab.tax_amount) || 0,
-          discount_amount: parseFloat(currentTab.discountAmount) || 0,
-          total: parseFloat(row.total) || 0,
-        })),
-    };
-
+  const onSubmit = async (formData) => {
     try {
-      const res = await axiosInstance.post("/purchase", purchaseData);
-      toast.success(res.data.message);
-      navigate("/purchase");
-    } catch (res) {
-      toast.error(res.response.data.message);
+      const currentTab = tabsData[activeTab];
+      const fileInput = document.querySelector('input[type="file"]');
+
+      // Validate rows
+      const filledRows = currentTab.rows.filter(
+        (row) => row.item && row.quantity && row.price && row.total
+      );
+
+      if (filledRows.length === 0) {
+        toast.error("Please add at least one valid expense item");
+        return;
+      }
+
+      // Create expense data object
+      const expenseData = {
+        expense_date: currentTab.date.toISOString(),
+        total_amount: totals.amount.toString(),
+        grand_total: totals.amount.toString(),
+        notes: currentTab.notes || "",
+        is_deleted: false,
+        expenseDetails: filledRows.map((row) => ({
+          expense_item_id: parseInt(row.item),
+          quantity: parseFloat(row.quantity),
+          price: parseFloat(row.price),
+          total: parseFloat(row.total),
+        })),
+      };
+
+      // Create FormData
+      const formData = new FormData();
+
+      // First append the main data
+      formData.append("expenseData", JSON.stringify(expenseData));
+
+      // Then append file if exists
+      if (fileInput?.files[0]) {
+        formData.append("file", fileInput.files[0]);
+      }
+
+      const response = await axiosInstance.post("/expense", formData);
+
+      if (response.status === 201) {
+        toast.success("Expense created successfully!");
+        reset();
+        navigate("/expenses");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to create expense");
     }
-
-    reset();
   };
 
-  // Discount percentage change handler
-  const handleDiscountPercentageChange = (value) => {
-    const percentage = parseFloat(value) || 0;
-    const totalAmount = totals.amount;
-    const discountAmount = ((percentage * totalAmount) / 100).toFixed(2);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const originalFileName = file.name;
+      const fileExtension = originalFileName.split(".").pop();
+      const baseName = originalFileName.replace(`.${fileExtension}`, "");
+      const displayName =
+        baseName.length > 6 ? baseName.slice(0, 6) + "..." : baseName;
 
-    // Update both percentage and amount for current tab only
-    setTabsData((prev) => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        discountAmount: discountAmount,
-        discountPercentage: value, // Store percentage in tabsData
-      },
-    }));
+      setTabsData((prev) => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          fileName: `${displayName}.${fileExtension}`,
+          originalFileName: originalFileName, // Store original filename
+        },
+      }));
+    } else {
+      setTabsData((prev) => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          fileName: "Upload A File",
+          originalFileName: null,
+        },
+      }));
+    }
   };
 
-  // Tax percentage change handler
-  const handleTaxPercentageChange = (value) => {
-    const percentage = parseFloat(value) || 0;
-    const totalAmount = totals.amount;
-    const taxAmount = ((percentage * totalAmount) / 100).toFixed(2);
+  const handleItemSelect = (
+    selected,
+    row,
+    setTabsData,
+    activeTab,
+    activeItems
+  ) => {
+    if (selected) {
+      const selectedItem = activeItems.find(
+        (item) => item.expense_item_id === selected.value
+      );
 
-    // Update both percentage and amount for current tab only
-    setTabsData((prev) => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        tax_amount: taxAmount,
-        taxPercentage: value, // Store percentage in tabsData
-      },
-    }));
+      if (!selectedItem) {
+        toast.error("Invalid item selected");
+        return;
+      }
+
+      setTabsData((prev) => ({
+        ...prev,
+        [activeTab]: {
+          ...prev[activeTab],
+          rows: prev[activeTab].rows.map((r) => {
+            if (r.id === row.id) {
+              const defaultQuantity = "1";
+              const price = selectedItem.price;
+              const total = (
+                parseFloat(defaultQuantity) * parseFloat(price)
+              ).toFixed(2);
+
+              return {
+                ...r,
+                item: selected.value, // Store as number
+                quantity: defaultQuantity, // Store as string
+                unit_id: selectedItem.unit_id,
+                price: price, // Store as number
+                total: total, // Store as string
+              };
+            }
+            return r;
+          }),
+        },
+      }));
+    }
   };
 
   return (
@@ -335,20 +386,19 @@ const AddExpense = () => {
 
                 <div className="shrink-0">
                   <div className="mb-2">
-                    <div className="mb-2">
-                      <label className="text-base">Upload A File</label>
-                    </div>
-
-                    <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*, .pdf, .doc, .docx, .xls, .xlsx"
-                      />
-                      <Paperclip />
-                      Upload A File
-                    </label>
+                    <label className="text-base">Upload A File</label>
                   </div>
+
+                  <label className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2 text-[#333] cursor-pointer">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*, .pdf, .doc, .docx, .xls, .xlsx"
+                      onChange={handleFileChange}
+                    />
+                    <Paperclip />
+                    {tabsData[activeTab].fileName}
+                  </label>
                 </div>
 
                 <div className="w-full">
@@ -394,7 +444,7 @@ const AddExpense = () => {
                               row.item
                                 ? {
                                     value: parseInt(row.item),
-                                    label: items.find(
+                                    label: activeItems.find(
                                       (item) =>
                                         item.expense_item_id ===
                                         parseInt(row.item)
@@ -402,63 +452,20 @@ const AddExpense = () => {
                                   }
                                 : null
                             }
-                            onChange={(selected) => {
-                              if (selected) {
-                                const selectedItem = items.find(
-                                  (item) =>
-                                    item.expense_item_id === selected.value
-                                );
-
-                                setTabsData((prev) => ({
-                                  ...prev,
-                                  [activeTab]: {
-                                    ...prev[activeTab],
-                                    rows: prev[activeTab].rows.map((r) => {
-                                      if (r.id === row.id) {
-                                        const defaultQuantity = "1";
-                                        const total = (
-                                          parseFloat(defaultQuantity) *
-                                          parseFloat(selectedItem.price)
-                                        ).toFixed(2);
-
-                                        return {
-                                          ...r,
-                                          item: selected.value,
-                                          quantity: defaultQuantity,
-                                          unit_id: selectedItem.unit_id,
-                                          price: selectedItem.price,
-                                          total: total,
-                                        };
-                                      }
-                                      return r;
-                                    }),
-                                  },
-                                }));
-                              } else {
-                                setTabsData((prev) => ({
-                                  ...prev,
-                                  [activeTab]: {
-                                    ...prev[activeTab],
-                                    rows: prev[activeTab].rows.map((r) => {
-                                      if (r.id === row.id) {
-                                        return {
-                                          ...r,
-                                          item: "",
-                                          quantity: "",
-                                          unit_id: "",
-                                          price: "",
-                                          total: "",
-                                        };
-                                      }
-                                      return r;
-                                    }),
-                                  },
-                                }));
-                              }
-                            }}
-                            options={items.map((item) => ({
+                            onChange={(selected) =>
+                              handleItemSelect(
+                                selected,
+                                row,
+                                setTabsData,
+                                activeTab,
+                                activeItems
+                              )
+                            }
+                            options={activeItems.map((item) => ({
                               value: item.expense_item_id,
-                              label: item.name,
+                              label:
+                                item.name.charAt(0).toUpperCase() +
+                                item.name.slice(1),
                             }))}
                             placeholder="Select Item"
                             isClearable
@@ -602,6 +609,7 @@ const AddExpense = () => {
                           {totals.amount.toFixed(2)}
                         </span>
                       </TableCell>
+                      <TableCell className="p-1"></TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
