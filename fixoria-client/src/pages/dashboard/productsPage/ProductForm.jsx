@@ -27,6 +27,7 @@ export default function ProductForm({ type = "add", productId }) {
 
   const [category, setCategory] = useState(null);
   const [isProduct, setIsProduct] = useState(true);
+  const [fileName, setFileName] = useState("Upload A File");
   const navigate = useNavigate();
 
   const {
@@ -72,6 +73,17 @@ export default function ProductForm({ type = "add", productId }) {
   const onImageChange = (event) => {
     const file = event.target.files[0];
     setSelectedImage(file);
+
+    // show the file name
+    if (file) {
+      const fileExtension = file.name.split(".").pop();
+      const baseName = file.name.replace(`.${fileExtension}`, "");
+      const shortName =
+        baseName.length > 6 ? baseName.slice(0, 6) + "..." : baseName;
+      setFileName(`${shortName}.${fileExtension}`);
+    } else {
+      setFileName("Upload A File");
+    }
   };
 
   const onSubmit = async (formData) => {
@@ -250,7 +262,7 @@ export default function ProductForm({ type = "add", productId }) {
                   onChange={onImageChange}
                 />
                 <Camera />
-                Upload A Image
+                {fileName}
               </label>
             </div>
           </div>
