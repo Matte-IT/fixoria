@@ -11,99 +11,234 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useTanstackQuery from "@/hook/useTanstackQuery";
+import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Edit, MoreVertical, Trash } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { Edit, MoreVertical, Printer, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import PurchasePageHeader from "./PurchasePageHeader";
 
-const columnHelper = createColumnHelper();
+const AllExpenses = () => {
+  const { data, isLoading, error, refetch } = useTanstackQuery("/expense");
 
-export const columns = [
-  columnHelper.accessor("purchase_date", {
-    header: "DATE",
-    cell: (info) => {
-      const date = new Date(info.getValue());
+  const generatePDF = async (expenseId) => {
+    try {
+      const response = await axiosInstance.get(`/expense/${expenseId}`);
+      const data = response.data;
 
-      // Format the date into the desired format
-      const formattedDate = date.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
+      // Fetch the units
+      const unitsResponse = await axiosInstance.get("/unit");
+      const units = unitsResponse.data;
+
+      // Fetch the items
+      const itemsResponse = await axiosInstance.get("/expense-items");
+      const items = itemsResponse.data;
+
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(20);
+      doc.text("Expense Invoice", 105, 15, { align: "center" });
+
+      // Add order details
+      doc.setFontSize(12);
+      doc.text(`Invoice No: INV-${data.expense_id}`, 15, 30);
+      doc.text(
+        `Date: ${new Date(data.expense_date).toLocaleDateString("en-GB")}`,
+        15,
+        40
+      );
+
+      // Add items table (expense_details with unit data)
+      const tableColumn = ["Item", "Quantity", "Unit", "Price", "AMOUNT"];
+      const tableRows = data.expense_details.map((item) => {
+        // Find the corresponding item and unit data
+        const itemData = items.find(
+          (i) => i.expense_item_id === item.expense_item_id
+        );
+        const unitData = units.find((u) => u.unit_id === itemData?.unit_id);
+
+        // Debugging: log the matching process
+        console.log("Item Data:", itemData);
+        console.log("Unit Data:", unitData);
+
+        const unitName = unitData ? unitData.unit_name : "N/A";
+
+        return [
+          item.item_name,
+          item.quantity,
+          unitName,
+          `$${item.price.toFixed(2)}`,
+          `$${item.total.toFixed(2)}`,
+        ];
       });
 
-      // Extract the day from the date
-      const day = date.getDate();
+      doc.autoTable({
+        startY: 70,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      });
 
-      // Add the correct suffix for the day
-      const suffix =
-        day % 10 === 1 && day !== 11
-          ? "st"
-          : day % 10 === 2 && day !== 12
-          ? "nd"
-          : day % 10 === 3 && day !== 13
-          ? "rd"
-          : "th";
+      // Add totals
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.text(
+        `Total: $${parseFloat(data.total_amount).toFixed(2)}`,
+        140,
+        finalY
+      );
+      doc.text(
+        `Grand Total: $${parseFloat(data.grand_total).toFixed(2)}`,
+        140,
+        finalY + 10
+      );
 
-      // Return the formatted date with the suffix
-      return formattedDate.replace(day.toString(), `${day}${suffix}`);
-    },
-  }),
+      // Add notes if any
+      if (data.notes) {
+        doc.text("Notes:", 15, finalY + 40);
+        doc.text(data.notes, 15, finalY + 50);
+      }
 
-  columnHelper.accessor("purchase_id", {
-    header: "INVOICE NO.",
-    cell: (info) => `INV-${info.getValue()}`,
-  }),
+      // Open PDF in new tab
+      window.open(doc.output("bloburl"), "_blank");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Error generating PDF");
+    }
+  };
 
-  columnHelper.accessor("party_name", {
-    header: "PARTY NAME",
-    cell: (info) => info.getValue(),
-  }),
+  const columnHelper = createColumnHelper();
 
-  columnHelper.accessor("grand_total", {
-    header: "Grand Total",
-    cell: (info) => `$${parseFloat(info.getValue()).toFixed(2)}`,
-  }),
+  const columns = [
+    columnHelper.accessor("expense_date", {
+      header: "DATE",
+      cell: (info) => {
+        const date = new Date(info.getValue());
 
-  columnHelper.display({
-    header: "Action",
-    id: "actions",
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 focus-visible:ring-offset-0 focus-visible:ring-0"
-          >
-            <MoreVertical className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <Link
-              to={`/edit-purchase/${row.original.purchase_id}`}
-              className="flex items-center gap-x-2 w-full"
+        // Format the date into the desired format
+        const formattedDate = date.toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        });
+
+        // Extract the day from the date
+        const day = date.getDate();
+
+        // Add the correct suffix for the day
+        const suffix =
+          day % 10 === 1 && day !== 11
+            ? "st"
+            : day % 10 === 2 && day !== 12
+            ? "nd"
+            : day % 10 === 3 && day !== 13
+            ? "rd"
+            : "th";
+
+        // Return the formatted date with the suffix
+        return formattedDate.replace(day.toString(), `${day}${suffix}`);
+      },
+    }),
+
+    columnHelper.accessor("total_amount", {
+      header: "Total Amount",
+      cell: (info) => {
+        const totalAmount = parseFloat(info.getValue()).toFixed(2);
+
+        return `$${totalAmount}`;
+      },
+    }),
+
+    columnHelper.accessor("grand_total", {
+      header: "Grand Total",
+      cell: (info) => `$${parseFloat(info.getValue()).toFixed(2)}`,
+    }),
+
+    columnHelper.accessor("notes", {
+      header: "Notes",
+      cell: (info) => info.getValue(),
+    }),
+
+    columnHelper.display({
+      header: "PDF",
+      id: "pdf",
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => generatePDF(row.original.expense_id)}
+        >
+          <Printer className="h-4 w-4" />
+        </Button>
+      ),
+    }),
+
+    columnHelper.display({
+      header: "Action",
+      id: "actions",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 focus-visible:ring-offset-0 focus-visible:ring-0"
             >
-              <Edit className="mr-2 h-4 w-4" />
-              <span>Edit</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => console.log("Delete", row.original.purchase_id)}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  }),
-];
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <Link
+                to={`/edit-purchase/${row.original.purchase_id}`}
+                className="flex items-center gap-x-2 w-full"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                <span>Edit</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                const result = await Swal.fire({
+                  title: "Are you sure?",
+                  text: "You won't be able to revert this!",
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#3085d6",
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Yes, delete it!",
+                });
 
-const AllExpenses = () => {
-  const { data, isLoading, error } = useTanstackQuery("/purchase/all");
+                if (result.isConfirmed) {
+                  const response = await axiosInstance.delete(
+                    `/expense/${row.original.expense_id}`
+                  );
+                  if (response.status === 200) {
+                    Swal.fire(
+                      "Deleted!",
+                      "Your expense has been deleted.",
+                      "success"
+                    );
+                    refetch();
+                  }
+                }
+              }}
+            >
+              <Trash className="mr-2 h-4 w-4" />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    }),
+  ];
 
   if (isLoading) {
     return <Loading />;
