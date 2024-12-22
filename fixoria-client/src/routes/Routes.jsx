@@ -22,17 +22,18 @@ import EditExpenseItem from "@/pages/dashboard/expenseItemsPage/EditExpenseItem"
 import ExpenseItems from "@/pages/dashboard/expenseItemsPage/ExpenseItems";
 import AllPaymentIn from "@/pages/dashboard/paymentInPage/AllPaymentIn";
 import CreatePaymentIn from "@/pages/dashboard/paymentInPage/CreatePaymentIn";
+import EditProduct from "@/pages/dashboard/productsPage/EditProduct";
 import AddExpense from "@/pages/dashboard/purchasePage/AddExpense";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
 import AddPurchaseOrder from "@/pages/dashboard/purchasePage/AddPurchaseOrder";
 import AllExpenses from "@/pages/dashboard/purchasePage/AllExpenses";
+import EditExpense from "@/pages/dashboard/purchasePage/EditExpense";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
 import EditPurchaseOrder from "@/pages/dashboard/purchasePage/EditPurchaseOrder";
 import AddSaleOrder from "@/pages/dashboard/salePage/AddSaleOrder";
 import EditSaleOrder from "@/pages/dashboard/salePage/EditSaleOrder";
 import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
 import { createBrowserRouter } from "react-router-dom";
-import EditProduct from "@/pages/dashboard/productsPage/EditProduct";
 
 const router = createBrowserRouter([
   {
@@ -158,6 +159,10 @@ const router = createBrowserRouter([
       {
         path: "/add-expense",
         element: <AddExpense />,
+      },
+      {
+        path: "/edit-expense/:id",
+        element: <EditExpense />,
       },
       // Expense Module Ends Here
 

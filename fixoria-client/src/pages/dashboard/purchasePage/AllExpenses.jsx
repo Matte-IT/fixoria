@@ -17,6 +17,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Edit, MoreVertical, Printer, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import PurchasePageHeader from "./PurchasePageHeader";
 
@@ -59,10 +60,6 @@ const AllExpenses = () => {
           (i) => i.expense_item_id === item.expense_item_id
         );
         const unitData = units.find((u) => u.unit_id === itemData?.unit_id);
-
-        // Debugging: log the matching process
-        console.log("Item Data:", itemData);
-        console.log("Unit Data:", unitData);
 
         const unitName = unitData ? unitData.unit_name : "N/A";
 
@@ -196,7 +193,7 @@ const AllExpenses = () => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem>
               <Link
-                to={`/edit-purchase/${row.original.purchase_id}`}
+                to={`/edit-expense/${row.original.expense_id}`}
                 className="flex items-center gap-x-2 w-full"
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -221,11 +218,7 @@ const AllExpenses = () => {
                     `/expense/${row.original.expense_id}`
                   );
                   if (response.status === 200) {
-                    Swal.fire(
-                      "Deleted!",
-                      "Your expense has been deleted.",
-                      "success"
-                    );
+                    toast.success("Expense deleted successfully");
                     refetch();
                   }
                 }

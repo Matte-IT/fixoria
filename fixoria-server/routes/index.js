@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const upload = require("../file-middleware/upload");
 
 // Routers
 const categoryRouter = require("./categoryRoutes");
@@ -40,6 +41,6 @@ router.use("/api/sales-order", salesOrdersRouter);
 router.use("/api/expense-items", expenseItemsRouter);
 
 // Expense routes
-router.use("/api/expense", expenseRouter);
+router.use("/api/expense", upload.single("file"), expenseRouter);
 
 module.exports = router;
