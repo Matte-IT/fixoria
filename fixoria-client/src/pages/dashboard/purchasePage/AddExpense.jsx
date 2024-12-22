@@ -396,15 +396,17 @@ const AddExpense = () => {
                                     value: parseInt(row.item),
                                     label: items.find(
                                       (item) =>
-                                        item.item_id === parseInt(row.item)
-                                    )?.item_name,
+                                        item.expense_item_id ===
+                                        parseInt(row.item)
+                                    )?.name,
                                   }
                                 : null
                             }
                             onChange={(selected) => {
                               if (selected) {
                                 const selectedItem = items.find(
-                                  (item) => item.item_id === selected.value
+                                  (item) =>
+                                    item.expense_item_id === selected.value
                                 );
 
                                 setTabsData((prev) => ({
@@ -416,9 +418,7 @@ const AddExpense = () => {
                                         const defaultQuantity = "1";
                                         const total = (
                                           parseFloat(defaultQuantity) *
-                                          parseFloat(
-                                            selectedItem.purchase_price
-                                          )
+                                          parseFloat(selectedItem.price)
                                         ).toFixed(2);
 
                                         return {
@@ -426,7 +426,7 @@ const AddExpense = () => {
                                           item: selected.value,
                                           quantity: defaultQuantity,
                                           unit_id: selectedItem.unit_id,
-                                          price: selectedItem.purchase_price,
+                                          price: selectedItem.price,
                                           total: total,
                                         };
                                       }
@@ -457,8 +457,8 @@ const AddExpense = () => {
                               }
                             }}
                             options={items.map((item) => ({
-                              value: item.item_id,
-                              label: item.item_name,
+                              value: item.expense_item_id,
+                              label: item.name,
                             }))}
                             placeholder="Select Item"
                             isClearable
