@@ -13,6 +13,18 @@ async function createSales(req, res) {
       sales_details, // Array of items for sales_details
     } = req.body;
 
+    // Validate required fields
+    if (
+      !party_id ||
+      !sales_date ||
+      !sales_details ||
+      sales_details.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Missing required fields or items." });
+    }
+
     // Begin transaction
     await pool.query("BEGIN");
 
