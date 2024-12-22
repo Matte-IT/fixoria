@@ -8,10 +8,15 @@ async function getSingleProduct(req, res) {
       SELECT 
         p.*,
         c.category_name,
-        u.unit_name
+        u.unit_name,
+        s.opening_quantity,
+        s.at_price,
+        s.as_of_date,
+        s.min_stock
       FROM inventory.item p
       LEFT JOIN inventory.item_categories c ON p.category_id = c.category_id
       LEFT JOIN inventory.units u ON p.unit_id = u.unit_id
+      LEFT JOIN inventory.stock s ON p.item_id = s.item_id
       WHERE p.item_id = $1 AND p.is_deleted = false
     `;
 

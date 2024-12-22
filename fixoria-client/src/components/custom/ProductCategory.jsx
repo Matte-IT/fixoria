@@ -13,11 +13,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Loading from "./Loading";
 
-const ProductCategory = ({ setCategory }) => {
+const ProductCategory = ({ setCategory, initialCategoryId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const dropdownRef = useRef(null);
+
+  const { data, isLoading, error, refetch } = useTanstackQuery("/category");
 
   const {
     register,
@@ -26,7 +28,18 @@ const ProductCategory = ({ setCategory }) => {
     formState: { errors },
   } = useForm();
 
-  const { data, isLoading, error, refetch } = useTanstackQuery("/category");
+  useEffect(() => {
+    // Set selected category based on category_id from initialCategoryId
+    if (initialCategoryId && data) {
+      const matchedCategory = data.find(
+        (category) => category.category_id === initialCategoryId
+      );
+      if (matchedCategory) {
+        setSelectedCategory(matchedCategory);
+        setCategory(matchedCategory); // Notify parent component
+      }
+    }
+  }, [initialCategoryId, data, setCategory]);
 
   const createCategory = async (formData) => {
     try {
@@ -38,7 +51,7 @@ const ProductCategory = ({ setCategory }) => {
       reset();
       setIsDialogOpen(false);
       toast.success("Category Created!");
-      
+
       selectCategory(response.data);
     } catch (error) {
       toast.error("Category Already Exists!");
@@ -47,13 +60,10 @@ const ProductCategory = ({ setCategory }) => {
 
   const selectCategory = (category) => {
     setSelectedCategory(category);
-
-    // Update the value in the parent form
-    setCategory(category);
+    setCategory(category); // Notify parent component
     setIsOpen(false);
   };
 
-  // Click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

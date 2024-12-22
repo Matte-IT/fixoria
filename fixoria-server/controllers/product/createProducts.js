@@ -48,7 +48,7 @@ const createProduct = async (req, res) => {
     const itemId = itemResult.rows[0].item_id;
 
     // Handle stock-related operations for products (type_id = 1)
-    if (type_id === 1) {
+    if (parseInt(type_id) === 1) {
       // Validate stock-related fields
       if (
         opening_quantity == null ||

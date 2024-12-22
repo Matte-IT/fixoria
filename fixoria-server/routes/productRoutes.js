@@ -9,7 +9,7 @@ const { updateProduct } = require("../controllers/product/updateProduct");
 router
   .get("/all", getAllProducts)
   .get("/:id", getSingleProduct)
-  .put("/:id", updateProduct)
+  .put("/:id", upload.single("image"), updateProduct)
   // Add `upload.single('image')` middleware for handling image uploads
   .post("/", upload.single("image"), createProduct);
 
