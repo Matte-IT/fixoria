@@ -193,42 +193,6 @@ export default function AddSaleOrder() {
     }
   };
 
-  const updateRow = (id, field, value) => {
-    const currentRows = tabsData[activeTab].rows;
-    const newRows = currentRows.map((row) => {
-      if (row.id === id) {
-        const updates = { [field]: value };
-
-        if (field === "quantity") {
-          const quantity = parseFloat(value) || 0;
-          if (quantity < 1) {
-            toast.error("Quantity cannot be less than 1");
-            updates.quantity = "1";
-          }
-          const price = parseFloat(row.price) || 0;
-          updates.total = (quantity * price).toFixed(2);
-        }
-
-        if (field === "price") {
-          const price = parseFloat(value) || 0;
-          const quantity = parseFloat(row.quantity) || 1;
-          updates.total = (quantity * price).toFixed(2);
-        }
-
-        return { ...row, ...updates };
-      }
-      return row;
-    });
-
-    setTabsData((prev) => ({
-      ...prev,
-      [activeTab]: {
-        ...prev[activeTab],
-        rows: newRows,
-      },
-    }));
-  };
-
   const onSubmit = async (data) => {
     const currentTab = tabsData[activeTab];
 
@@ -404,6 +368,7 @@ export default function AddSaleOrder() {
                         },
                       }));
                     }}
+                    required
                   >
                     <SelectTrigger className="w-auto focus:ring-offset-0 focus:ring-0 text-base">
                       <SelectValue placeholder="Select A Party" />
@@ -534,6 +499,7 @@ export default function AddSaleOrder() {
                             placeholder="Select Item"
                             isClearable
                             isSearchable
+                            required
                           />
                         </TableCell>
 
