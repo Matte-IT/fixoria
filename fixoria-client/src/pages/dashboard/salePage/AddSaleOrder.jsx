@@ -339,6 +339,11 @@ export default function AddSaleOrder() {
                     <DatePicker
                       date={tabsData[activeTab].expected_delivery_date}
                       setDate={(newDate) => {
+                        if (newDate < tabsData[activeTab].purchase_order_date) {
+                          toast.error("Expected delivery date cannot be before the order date");
+                          return;
+                        }
+
                         setTabsData((prev) => ({
                           ...prev,
                           [activeTab]: {
@@ -347,6 +352,7 @@ export default function AddSaleOrder() {
                           },
                         }));
                       }}
+                      minDate={tabsData[activeTab].purchase_order_date}
                     />
                   </div>
                 </div>
