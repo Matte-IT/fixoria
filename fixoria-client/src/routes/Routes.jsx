@@ -6,21 +6,21 @@ import ProductsPage from "@/pages/dashboard/productsPage/ProductsPage";
 import AddSalePage from "@/pages/dashboard/salePage/AddSalePage";
 import EditSale from "@/pages/dashboard/salePage/EditSale";
 
+import Purchase from "@/pages/dashboard/purchasePage/Purchase";
+import PurchaseOrders from "@/pages/dashboard/purchasePage/PurchaseOrders";
 import SalePage from "@/pages/dashboard/salePage/SalePage";
 import SettingsPage from "@/pages/dashboard/settingsPage/settingsPage";
 import StorePage from "@/pages/dashboard/storePage/StorePage";
 import TransactionPage from "@/pages/dashboard/transactionPage/TransactionPage";
-import Purchase from "@/pages/dashboard/purchasePage/Purchase";
-import PurchaseOrders from "@/pages/dashboard/purchasePage/PurchaseOrders";
 import DashboardLayout from "../layouts/DashboardLayout";
 
-import HomePage from "../pages/dashboard/homePage/HomePage";
-import ErrorPage from "../pages/errorPage/ErrorPage";
 import CreateExpenseItem from "@/pages/dashboard/expenseItemsPage/CreateExpenseItem";
 import EditExpenseItem from "@/pages/dashboard/expenseItemsPage/EditExpenseItem";
 import ExpenseItems from "@/pages/dashboard/expenseItemsPage/ExpenseItems";
 import AllPaymentIn from "@/pages/dashboard/paymentInPage/AllPaymentIn";
 import CreatePaymentIn from "@/pages/dashboard/paymentInPage/CreatePaymentIn";
+import EditPaymentIn from "@/pages/dashboard/paymentInPage/EditPaymentIn";
+import EditProduct from "@/pages/dashboard/productsPage/EditProduct";
 import AddExpense from "@/pages/dashboard/purchasePage/AddExpense";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
 import AddPurchaseOrder from "@/pages/dashboard/purchasePage/AddPurchaseOrder";
@@ -28,12 +28,13 @@ import AllExpenses from "@/pages/dashboard/purchasePage/AllExpenses";
 import EditExpense from "@/pages/dashboard/purchasePage/EditExpense";
 import EditPurchase from "@/pages/dashboard/purchasePage/EditPurchase";
 import EditPurchaseOrder from "@/pages/dashboard/purchasePage/EditPurchaseOrder";
+import HomePage from "../pages/dashboard/homePage/HomePage";
+import ErrorPage from "../pages/errorPage/ErrorPage";
 
+import Invoice from "@/pages/dashboard/invoice/Invoice";
 import AddSaleOrder from "@/pages/dashboard/salePage/AddSaleOrder";
 import EditSaleOrder from "@/pages/dashboard/salePage/EditSaleOrder";
 import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
-import EditProduct from "@/pages/dashboard/productsPage/EditProduct";
-import Invoice from "@/pages/dashboard/invoice/Invoice";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -177,12 +178,16 @@ const router = createBrowserRouter([
 
       // Payment In Module Starts Here
       {
-        path: "/paymentIn",
+        path: "/payment-in",
         element: <AllPaymentIn />,
       },
       {
-        path: "/add-paymentIn",
+        path: "/add-payment-in",
         element: <CreatePaymentIn />,
+      },
+      {
+        path: "/edit-payment-in/:id",
+        element: <EditPaymentIn />,
       },
       // Payment In Module Ends Here
     ],

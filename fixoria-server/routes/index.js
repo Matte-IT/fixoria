@@ -12,6 +12,8 @@ const salesRouter = require("./saleRoutes");
 const salesOrdersRouter = require("./saleOrdersRoutes");
 const expenseItemsRouter = require("./expenseItems");
 const expenseRouter = require("./expenseRoutes");
+const paymentTypeRouter = require("./paymentTypeRoutes");
+const paymentInRouter = require("./paymentInRoutes");
 
 // Category Route
 router.use("/api/category", categoryRouter);
@@ -42,5 +44,11 @@ router.use("/api/expense-items", expenseItemsRouter);
 
 // Expense routes
 router.use("/api/expense", upload.single("file"), expenseRouter);
+
+// Payment Type routes
+router.use("/api/payment-type", paymentTypeRouter);
+
+// Payment In routes
+router.use("/api/payment-in", paymentInRouter);
 
 module.exports = router;
