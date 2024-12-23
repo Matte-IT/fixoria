@@ -86,10 +86,6 @@ const router = createBrowserRouter([
         path: "/store",
         element: <StorePage />,
       },
-      {
-        path: "/invoice",
-        element: <Invoice />,
-      },
       // sales routes start
       {
         path: "/sale",
@@ -191,6 +187,10 @@ const router = createBrowserRouter([
       },
       // Payment In Module Ends Here
     ],
+  },
+  {
+    path: "invoice",
+    element: <Invoice />,
   },
 ]);
 

@@ -1,7 +1,39 @@
+import React, { useRef } from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { Mail, Download, Printer } from "lucide-react";
 import PageTitle from "@/components/custom/PageTitle";
+import WhatsAppIcon from "./WhatsAppIcon";
+import { useNavigate } from "react-router-dom";
 
 export default function Invoice() {
+  const invoiceRef = useRef();
+  const navigate = useNavigate();
+
+  const downloadInvoicePDF = () => {
+    html2canvas(invoiceRef.current, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const pageHeight = pdf.internal.pageSize.height;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const heightLeft = imgHeight;
+
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      position += heightLeft;
+
+      while (heightLeft >= pageHeight) {
+        position = heightLeft - pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      }
+
+      pdf.save("invoice.pdf");
+    });
+  };
+
   return (
     <>
       <PageTitle title="Invoice" />
@@ -16,16 +48,21 @@ export default function Invoice() {
         </div>
 
         {/* Middle section - Invoice Preview */}
-        <div className="flex-1 bg-white rounded-lg shadow-sm p-6">
+        <div
+          className="flex-1 bg-white rounded-lg shadow-sm p-6"
+          ref={invoiceRef}
+        >
+          <h1 className="text-xl font-bold text-center mb-7">Invoice Copy</h1>
+
           <div className="max-w-3xl mx-auto border rounded-lg p-6">
             {/* Invoice Header */}
-            <div className=" mb-8">
+            <div className="mb-8">
               <h1 className="text-xl font-bold">Company 007</h1>
               <p className="text-gray-600">Phone: 1880845652</p>
             </div>
 
             {/* Bill To Section */}
-            <div className="grid grid-cols-2 gap-8 mb-8">
+            <div className="flex justify-between mb-8">
               <div>
                 <h2 className="font-semibold mb-2">Bill To:</h2>
                 <p>Jahid</p>
@@ -38,43 +75,41 @@ export default function Invoice() {
             </div>
 
             {/* Invoice Table */}
-            <table className="w-full mb-8">
+            <table className="w-full mb-8 border border-collapse">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">#</th>
-                  <th className="text-left py-2">Item name</th>
-                  <th className="text-right py-2">Quantity</th>
-                  <th className="text-right py-2">Price/Unit</th>
-                  <th className="text-right py-2">Amount</th>
+                <tr className="bg-emerald-500 text-white text-center">
+                  <th className="py-3 px-4 border">#</th>
+                  <th className="py-3 px-4 border">Item Name</th>
+                  <th className="py-3 px-4 border">Quantity</th>
+                  <th className="py-3 px-4 border">Price/Unit</th>
+                  <th className="py-3 px-4 border">Amount</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr>
-                  <td className="py-2">1</td>
-                  <td className="py-2">laptop</td>
-                  <td className="text-right py-2">1</td>
-                  <td className="text-right py-2">200.00</td>
-                  <td className="text-right py-2">200.00</td>
-                </tr>
-                <tr>
-                  <td className="py-2">2</td>
-                  <td className="py-2">Mouse</td>
-                  <td className="text-right py-2">1</td>
-                  <td className="text-right py-2">100.00</td>
-                  <td className="text-right py-2">100.00</td>
+                <tr className="border-b hover:bg-gray-100 text-center">
+                  <td className="py-2 px-4 border">1</td>
+                  <td className="py-2 px-4 border">Laptop</td>
+                  <td className="py-2 px-4 border">1</td>
+                  <td className="py-2 px-4 border">$200.00</td>
+                  <td className="py-2 px-4 border">$200.00</td>
                 </tr>
 
                 <tr className="border-t">
-                  <td colSpan="4" className="text-right py-2 font-semibold">
+                  <td
+                    colSpan="4"
+                    className="text-right py-2 px-4 font-semibold border"
+                  >
                     Total:
                   </td>
-                  <td className="text-right py-2 font-semibold">300.00</td>
+                  <td className="text-right py-2 px-4 font-semibold border">
+                    $300.00
+                  </td>
                 </tr>
               </tbody>
             </table>
 
-            {/* greetings */}
+            {/* Greetings */}
             <div>
               <p className="text-sm text-center ">
                 Thanks for doing business with us!
@@ -85,24 +120,42 @@ export default function Invoice() {
 
         {/* Right sidebar */}
         <div className="w-64 bg-white rounded-lg shadow-sm ml-4 p-4">
-          <h2 className="text-lg font-semibold mb-4">Share Invoice</h2>
+          <h2 className="text-lg font-semibold mb-4">Actions</h2>
+
           <div className="space-y-4">
             <button className="flex items-center justify-center w-full gap-2 p-2 bg-green-500 text-white rounded hover:bg-green-600">
-              {/* <WhatsappIcon size={20} /> */}
+              <WhatsAppIcon />
+
               <span>WhatsApp</span>
             </button>
+
             <button className="flex items-center justify-center w-full gap-2 p-2 bg-red-500 text-white rounded hover:bg-red-600">
               <Mail size={20} />
               <span>Gmail</span>
             </button>
+
             <hr />
-            <button className="flex items-center justify-center w-full gap-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+
+            <button
+              className="flex items-center justify-center w-full gap-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={downloadInvoicePDF}
+            >
               <Download size={20} />
               <span>Download PDF</span>
             </button>
+
             <button className="flex items-center justify-center w-full gap-2 p-2 bg-gray-500 text-white rounded hover:bg-gray-600">
               <Printer size={20} />
               <span>Print Invoice</span>
+            </button>
+
+            <hr />
+
+            <button
+              onClick={() => navigate("/sale")}
+              className="flex items-center justify-center w-full gap-2 p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+            >
+              <span>Go Back</span>
             </button>
           </div>
         </div>
