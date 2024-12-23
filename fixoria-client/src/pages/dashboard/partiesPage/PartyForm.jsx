@@ -82,11 +82,15 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
 
   const onSubmit = async (formData) => {
     try {
+      // Add validation for opening_balance
+      const balance = parseFloat(formData.opening_balance);
+      if (isNaN(balance)) {
+        toast.error("Invalid opening balance");
+        return;
+      }
+
       const formattedDate = date
-        ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-            2,
-            "0"
-          )}-${String(date.getDate()).padStart(2, "0")}`
+        ? date.toISOString().split('T')[0]
         : null;
 
       const dataWithDate = {
@@ -110,7 +114,7 @@ const PartyForm = ({ onClose, refetch, defaultValues }) => {
       refetch();
       onClose();
     } catch (error) {
-      toast.error(`Error: ${error.message}`);
+      toast.error(error.response?.data?.error || "An error occurred");
     }
   };
 

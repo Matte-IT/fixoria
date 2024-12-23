@@ -32,9 +32,17 @@ const EditPaymentIn = () => {
       setValue("notes", data.notes);
       setValue("received_amount", data.received_amount);
       setDate(new Date(data.payment_date));
+      
       if (data.uploaded_file_path) {
-        setFileDisplay(data.uploaded_file_path);
-        setOriginalFileName(data.uploaded_file_path);
+        const originalFileName = data.uploaded_file_path.split("/").pop();
+        setOriginalFileName(originalFileName);
+        
+        const fileExtension = originalFileName.split(".").pop();
+        const baseName = originalFileName.replace(`.${fileExtension}`, "");
+        const displayName = baseName.length > 6 
+          ? baseName.slice(0, 6) + "..." 
+          : baseName;
+        setFileDisplay(`${displayName}.${fileExtension}`);
       }
     }
   }, [data, setValue]);
@@ -44,9 +52,12 @@ const EditPaymentIn = () => {
     if (file) {
       const fullFileName = file.name;
       setOriginalFileName(fullFileName);
+      
       const fileExtension = fullFileName.split(".").pop();
       const baseName = fullFileName.replace(`.${fileExtension}`, "");
-      const displayName = baseName.length > 6 ? baseName.slice(0, 6) + "..." : baseName;
+      const displayName = baseName.length > 6 
+        ? baseName.slice(0, 6) + "..." 
+        : baseName;
       setFileDisplay(`${displayName}.${fileExtension}`);
     } else {
       setFileDisplay("Upload A File");

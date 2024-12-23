@@ -1,8 +1,8 @@
 const pool = require("../../config/database");
 
 const updateAParty = async (req, res) => {
+  const party_id = req.params.id;
   const {
-    party_id,
     party_name,
     party_number,
     email,

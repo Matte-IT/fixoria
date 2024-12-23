@@ -1,4 +1,6 @@
 const pool = require("../../config/database");
+const fs = require('fs');
+const path = require('path');
 
 const updateAnExpense = async (req, res) => {
   try {
@@ -46,15 +48,22 @@ const updateAnExpense = async (req, res) => {
       });
     }
 
-    // Get file path if exists
-    const uploaded_file_path = req.file
-      ? req.file.path.replace(/\\/g, "/")
-      : null;
-
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
+
+      // Get the existing file path before update
+      const existingFileQuery = await client.query(
+        `SELECT uploaded_file_path FROM purchase.expense WHERE expense_id = $1`,
+        [id]
+      );
+      const existingFilePath = existingFileQuery.rows[0]?.uploaded_file_path;
+
+      // Get new file path if exists
+      const uploaded_file_path = req.file
+        ? req.file.path.replace(/\\/g, "/")
+        : null;
 
       // Update the expense
       await client.query(
@@ -119,6 +128,11 @@ const updateAnExpense = async (req, res) => {
 
       await client.query("COMMIT");
 
+      // Delete old file if new file is uploaded
+      if (uploaded_file_path && existingFilePath && fs.existsSync(existingFilePath)) {
+        fs.unlinkSync(existingFilePath);
+      }
+
       res.status(200).json({
         message: "Expense updated successfully",
         expense_id: id,
@@ -127,11 +141,11 @@ const updateAnExpense = async (req, res) => {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      console.error("Database error:", error);
-      res.status(500).json({
-        error: "Internal server error",
-        details: error.message,
-      });
+      // Delete newly uploaded file if transaction failed
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      throw error;
     } finally {
       client.release();
     }
