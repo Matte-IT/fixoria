@@ -22,6 +22,7 @@ import EditExpenseItem from "@/pages/dashboard/expenseItemsPage/EditExpenseItem"
 import ExpenseItems from "@/pages/dashboard/expenseItemsPage/ExpenseItems";
 import AllPaymentIn from "@/pages/dashboard/paymentInPage/AllPaymentIn";
 import CreatePaymentIn from "@/pages/dashboard/paymentInPage/CreatePaymentIn";
+import EditPaymentIn from "@/pages/dashboard/paymentInPage/EditPaymentIn";
 import EditProduct from "@/pages/dashboard/productsPage/EditProduct";
 import AddExpense from "@/pages/dashboard/purchasePage/AddExpense";
 import AddPurchase from "@/pages/dashboard/purchasePage/AddPurchase";
@@ -168,12 +169,16 @@ const router = createBrowserRouter([
 
       // Payment In Module Starts Here
       {
-        path: "/paymentIn",
+        path: "/payment-in",
         element: <AllPaymentIn />,
       },
       {
-        path: "/add-paymentIn",
+        path: "/add-payment-in",
         element: <CreatePaymentIn />,
+      },
+      {
+        path: "/edit-payment-in/:id",
+        element: <EditPaymentIn />,
       },
       // Payment In Module Ends Here
     ],
