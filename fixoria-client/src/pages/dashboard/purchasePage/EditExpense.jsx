@@ -50,12 +50,25 @@ const EditExpense = () => {
 
   useEffect(() => {
     if (expenseData && items) {
+      const originalFileName = expenseData.uploaded_file_path
+        ? expenseData.uploaded_file_path.split("/").pop()
+        : "Upload A File";
+
+      const truncateFileName = (fileName) => {
+        if (fileName === "Upload A File") return fileName;
+        
+        const fileExtension = fileName.split(".").pop();
+        const baseName = fileName.replace(`.${fileExtension}`, "");
+        const displayName = baseName.length > 6 
+          ? baseName.slice(0, 6) + "..." 
+          : baseName;
+        return `${displayName}.${fileExtension}`;
+      };
+
       setFormData({
         date: new Date(expenseData.expense_date),
         notes: expenseData.notes,
-        fileName: expenseData.uploaded_file_path
-          ? expenseData.uploaded_file_path.split("/").pop()
-          : "Upload A File",
+        fileName: originalFileName,
         rows: expenseData.expense_details.map((detail) => ({
           id: detail.expense_detail_id,
           item: detail.expense_item_id.toString(),
@@ -68,6 +81,8 @@ const EditExpense = () => {
               ?.unit_id?.toString() || "",
         })),
       });
+      
+      setFileName(truncateFileName(originalFileName));
 
       const initialTotals = {
         quantity: expenseData.expense_details.reduce(
@@ -180,11 +195,21 @@ const EditExpense = () => {
       const originalFileName = file.name;
       const fileExtension = originalFileName.split(".").pop();
       const baseName = originalFileName.replace(`.${fileExtension}`, "");
-      const displayName =
-        baseName.length > 6 ? baseName.slice(0, 6) + "..." : baseName;
+      const displayName = baseName.length > 6 
+        ? baseName.slice(0, 6) + "..." 
+        : baseName;
+      
       setFileName(`${displayName}.${fileExtension}`);
+      setFormData(prev => ({
+        ...prev,
+        fileName: originalFileName
+      }));
     } else {
       setFileName("Upload A File");
+      setFormData(prev => ({
+        ...prev,
+        fileName: "Upload A File"
+      }));
     }
   };
 

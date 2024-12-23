@@ -10,7 +10,7 @@ router
   .post("/", createParty) // POST to create a party
   .get("/", getAllParties) // GET to fetch all parties
   .get("/:id", getAParty) // GET to fetch A party by id
-  .patch("/:id", deleteAParty) // Delete A party by id
+  .patch("/:id", deleteAParty) // DELETE A party by id
   .put("/:id", updateAParty); // PUT to update a specific party by id
 
 module.exports = router;

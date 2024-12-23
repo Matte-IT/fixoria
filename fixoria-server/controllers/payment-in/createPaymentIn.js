@@ -1,10 +1,13 @@
 const pool = require("../../config/database");
+const fs = require('fs');
 
 const createPaymentIn = async (req, res) => {
   try {
     const paymentData = {
       ...req.body,
-      uploaded_file_path: req.file ? req.file.filename : null,
+      uploaded_file_path: req.file 
+        ? req.file.path.replace(/\\/g, "/")
+        : null,
       party_id: Number(req.body.party_id),
       payment_type_id: Number(req.body.payment_type_id),
       received_amount: Number(req.body.received_amount),
@@ -12,19 +15,31 @@ const createPaymentIn = async (req, res) => {
 
     // Check required fields
     if (!paymentData.party_id) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(400).json({ error: "Party is required" });
     }
 
     if (!paymentData.payment_type_id) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(400).json({ error: "Payment type is required" });
     }
 
     if (!paymentData.received_amount) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(400).json({ error: "Received amount is required" });
     }
 
     // Check if notes is required for payment_type_id 2
     if (paymentData.payment_type_id === 2 && !paymentData.notes) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return res
         .status(400)
         .json({ error: "Notes is required for this payment type" });
@@ -47,6 +62,9 @@ const createPaymentIn = async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     console.error("Error in createPaymentIn:", error);
     res.status(500).json({ error: "Internal server error" });
   }

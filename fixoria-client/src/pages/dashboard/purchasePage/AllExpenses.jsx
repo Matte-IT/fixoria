@@ -15,11 +15,12 @@ import useTanstackQuery, { axiosInstance } from "@/hook/useTanstackQuery";
 import { createColumnHelper } from "@tanstack/react-table";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Edit, MoreVertical, Printer, Trash } from "lucide-react";
+import { Edit, MoreVertical, Printer, Trash, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import PurchasePageHeader from "./PurchasePageHeader";
+import { baseURL } from "@/utils/baseUrl";
 
 const AllExpenses = () => {
   const { data, isLoading, error, refetch } = useTanstackQuery("/expense");
@@ -158,6 +159,26 @@ const AllExpenses = () => {
     columnHelper.accessor("notes", {
       header: "Notes",
       cell: (info) => info.getValue(),
+    }),
+
+    columnHelper.accessor("uploaded_file_path", {
+      header: "View File",
+      cell: ({ row }) => {
+        const filePath = row.original.uploaded_file_path;
+        
+        return filePath ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => window.open(`${baseURL}/${filePath}`, '_blank')}
+          >
+            <FileText className="h-4 w-4" />
+          </Button>
+        ) : (
+          <span className="text-gray-400">No file</span>
+        );
+      },
     }),
 
     columnHelper.display({
