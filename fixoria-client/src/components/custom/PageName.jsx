@@ -1,6 +1,6 @@
 const PageName = ({ pageName }) => {
   return (
-    <h4 className="font-semibold text-xl text-headingTextColor">{pageName}</h4>
+    <h4 className="font-semibold text-lg text-headingTextColor">{pageName}</h4>
   );
 };
 
