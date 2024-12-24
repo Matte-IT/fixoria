@@ -224,7 +224,9 @@ export default function AddSaleOrder() {
     try {
       const res = await axiosInstance.post("/sales-order", saleOrderData);
       toast.success(res.data.message);
-      navigate("/sale-orders");
+
+      // navigate to invoice page
+      navigate(`/invoice/sales-order/${res.data.sales_order_id}`);
     } catch (error) {
       console.error("Error response:", error.response?.data);
       toast.error(error.response?.data?.error || "Failed to create sale order");
@@ -340,7 +342,9 @@ export default function AddSaleOrder() {
                       date={tabsData[activeTab].expected_delivery_date}
                       setDate={(newDate) => {
                         if (newDate < tabsData[activeTab].purchase_order_date) {
-                          toast.error("Expected delivery date cannot be before the order date");
+                          toast.error(
+                            "Expected delivery date cannot be before the order date"
+                          );
                           return;
                         }
 

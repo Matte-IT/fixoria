@@ -73,6 +73,7 @@ async function createSales(req, res) {
 
     res.status(201).json({
       message: "Sales created successfully",
+      sales_id,
     });
   } catch (error) {
     // Rollback the transaction on error
