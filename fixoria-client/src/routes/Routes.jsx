@@ -37,6 +37,9 @@ import EditSaleOrder from "@/pages/dashboard/salePage/EditSaleOrder";
 import SaleOrders from "@/pages/dashboard/salePage/SaleOrders";
 
 import { createBrowserRouter } from "react-router-dom";
+import SalesOrder from "@/pages/dashboard/invoice/SalesOrderInvoice";
+import SalesInvoice from "@/pages/dashboard/invoice/SalesInvoice";
+import SalesOrderInvoice from "@/pages/dashboard/invoice/SalesOrderInvoice";
 
 const router = createBrowserRouter([
   {
@@ -189,8 +192,12 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "invoice",
-    element: <Invoice />,
+    path: "/invoice/sales/:id",
+    element: <SalesInvoice />,
+  },
+  {
+    path: "/invoice/sales-order/:id",
+    element: <SalesOrderInvoice />,
   },
 ]);
 

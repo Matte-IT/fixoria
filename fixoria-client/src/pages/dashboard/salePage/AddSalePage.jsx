@@ -204,7 +204,9 @@ const AddSalePage = () => {
     try {
       const res = await axiosInstance.post("/sales", saleData);
       toast.success(res.data.message);
-      navigate("/sale");
+
+      // navigate to invoice page
+      navigate(`/invoice/sales/${res.data.sales_id}`);
     } catch (res) {
       toast.error(res.response.data.message);
     }

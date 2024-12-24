@@ -15,11 +15,15 @@ async function getSingleSale(req, res) {
       SELECT 
         s.sales_id,
         s.party_id,
+        s.total_amount,
+        s.grand_total,
+        p.party_name,
         s.sales_date,
         s.notes,
         s.tax_amount,
         s.discount_amount
       FROM sales.sales s
+      LEFT JOIN party.party p ON s.party_id = p.party_id
       WHERE s.sales_id = $1 AND s.is_deleted = FALSE
     `;
     const saleResult = await client.query(saleQuery, [id]);
